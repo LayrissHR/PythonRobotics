@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="bg">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Видове сензори в роботиката – Обзор</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        scroll-behavior: smooth;
+      }
+      .sensor-card {
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .sensor-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+          0 4px 6px -4px rgb(0 0 0 / 0.1);
+      }
+      .interactive-area {
+        background-color: #ffffff;
+        border: 2px dashed #d1d5db;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        text-align: center;
+      }
+      .robot-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1rem;
+        transition: transform 0.3s ease;
+      }
+      .status-light {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: #9ca3af;
+        display: inline-block;
+        transition: background-color 0.3s ease;
+      }
+      .status-light.active {
+        background-color: #4ade80; /* green-400 */
+      }
+      .status-light.warning {
+        background-color: #facc15; /* yellow-400 */
+      }
+      .status-light.danger {
+        background-color: #f87171; /* red-400 */
+      }
+      .btn {
+        background-color: #3b82f6; /* blue-500 */
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      .btn:hover {
+        background-color: #2563eb; /* blue-600 */
+      }
+      pre {
+        background-color: #1f2937; /* gray-800 */
+        color: #f3f4f6; /* gray-100 */
+        padding: 1rem;
+        border-radius: 0.5rem;
+        overflow-x: auto;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.9em;
+        text-align: left;
+      }
+      code {
+        font-family: inherit;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-800">
+    <div class="container mx-auto px-4 py-8 md:py-12">
+      <header class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-blue-600 mb-2">
+          Светът на Роботите: Как "Усещат" Сензорите?
+        </h1>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+          Интерактивен урок за сетивата на машините, обяснени по възможно
+          най-простия начин.
+        </p>
+      </header>
+
+      <main>
+        <!-- Introduction -->
+        <div class="bg-white p-8 rounded-2xl shadow-md mb-12">
+          <h2 class="text-2xl font-bold text-gray-800 mb-4">Какво е сензор?</h2>
+          <p class="mb-4">
+            Представете си, че роботът е човек. Как ние, хората, усещаме света?
+            С нашите сетива!
+          </p>
+          <ul class="list-disc list-inside space-y-2 text-gray-700">
+            <li>
+              👀 С <span class="font-semibold">очите си</span> виждаме къде
+              отиваме.
+            </li>
+            <li>
+              👂 С <span class="font-semibold">ушите си</span> чуваме звуци.
+            </li>
+            <li>
+              🤚 С <span class="font-semibold">кожата си</span> усещаме допир,
+              топлина и студ.
+            </li>
+            <li>
+              👃 С <span class="font-semibold">носа си</span> усещаме миризми.
+            </li>
+          </ul>
+          <p class="mt-4">
+            Сензорите са
+            <span class="font-bold text-blue-600">сетивата на роботите</span>.
+            Те са малки електронни компоненти, които дават на робота информация
+            за света около него. Без тях роботът е "сляп" и "глух".
+          </p>
+        </div>
+
+        <!-- Sensor Cards -->
+
+        <!-- 1. Distance Sensor -->
+        <section id="distance" class="sensor-card">
+          <h3 class="text-2xl font-bold text-blue-700 mb-3">
+            1. Сензор за разстояние (Ултразвуков)
+          </h3>
+          <div class="md:flex md:space-x-8">
+            <div class="md:w-1/2">
+              <img
+                src="https://exallto.com/img/cms/24%209.jpg"
+                alt="Ултразвуков сензор"
+                class="rounded-lg shadow-md mb-4 w-full object-cover"
+              />
+              <p class="font-semibold mb-2">Аналогия: Прилепът 🦇</p>
+              <p class="mb-4">
+                Този сензор работи като прилеп. Той има два основни компонента -
+                "предавател" и "приемник". Предавателят изпраща кратък
+                ултразвуков импулс (звук, който е твърде висок, за да го чуем).
+                Когато този импулс се удари в предмет, той се отразява обратно и
+                приемникът го "чува". Роботът измерва времето между изпращането
+                и получаването на сигнала и така изчислява колко далеч е
+                предметът.
+              </p>
+              <p class="font-semibold mb-2">Още примери от реалния живот:</p>
+              <ul class="list-disc list-inside space-y-1 mb-4">
+                <li>
+                  <b>Роботизирани прахосмукачки:</b> За да си "картографират"
+                  стаята и да избягват мебели.
+                </li>
+                <li>
+                  <b>Автомобили:</b> Като парктроник, за да предупреждават
+                  шофьора за близки обекти.
+                </li>
+                <li>
+                  <b>Индустриални системи:</b> За измерване на нивото на
+                  течности в резервоари безконтактно.
+                </li>
+                <li>
+                  <b>Дронове:</b> За да поддържат постоянна височина над земята.
+                </li>
+              </ul>
+              <p class="font-semibold mt-4 mb-2">
+                Примерен Python код (с gpiozero):
+              </p>
+              <pre><code>from gpiozero import DistanceSensor
+from time import sleep
+
+# Сензорът е свързан към пинове 23 (trigger) и 24 (echo)
+sensor = DistanceSensor(echo=24, trigger=23)
+
+while True:
+    print(f'Разстояние: {sensor.distance * 100:.1f} cm')
+    sleep(1)</code></pre>
+            </div>
+            <div class="md:w-1/2 mt-6 md:mt-0">
+              <div class="interactive-area h-full flex flex-col justify-center">
+                <h4 class="font-bold mb-4">
+                  Интерактивен пример: Робот-количка
+                </h4>
+                <div id="robot-car" class="robot-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-full h-full"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125V14.25m-17.25 4.5v-1.875a3.375 3.375 0 0 0 3.375-3.375h1.5a1.125 1.125 0 0 1 1.125 1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75V7.5a2.25 2.25 0 0 1 2.25-2.25h.75a2.25 2.25 0 0 1 2.25 2.25v.75"
+                    />
+                  </svg>
+                </div>
+                <p>Плъзнете, за да промените разстоянието до стената:</p>
+                <input
+                  type="range"
+                  min="10"
+                  max="100"
+                  value="100"
+                  class="w-full mt-2"
+                  id="distance-slider"
+                />
+                <div class="mt-4">
+                  <span class="font-semibold">Статус:</span>
+                  <div id="distance-light" class="status-light active"></div>
+                  <span id="distance-text">Всичко е наред</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Light Sensor -->
+        <section id="light" class="sensor-card">
+          <h3 class="text-2xl font-bold text-blue-700 mb-3">
+            2. Сензор за светлина (Фоторезистор)
+          </h3>
+          <div class="md:flex md:space-x-8">
+            <div class="md:w-1/2">
+              <img
+                src="https://s13emagst.akamaized.net/products/32878/32877557/images/res_7b4adcda6475c2a0039bfd83b25d6211.jpg"
+                alt="Сензор за светлина"
+                class="rounded-lg shadow-md mb-4 w-full object-cover"
+              />
+              <p class="font-semibold mb-2">Аналогия: Нашите очи 👀</p>
+              <p class="mb-4">
+                Този сензор (често наричан LDR - Light Dependent Resistor) е
+                компонент, чието електрическо съпротивление се променя в
+                зависимост от това колко светлина пада върху него. Колкото
+                по-светло е, толкова по-ниско е съпротивлението му и толкова
+                по-лесно протича ток през него.
+              </p>
+              <p class="font-semibold mb-2">Още примери от реалния живот:</p>
+              <ul class="list-disc list-inside space-y-1 mb-4">
+                <li>
+                  <b>Улично осветление:</b> Автоматично се включва, когато се
+                  стъмни.
+                </li>
+                <li>
+                  <b>Смартфони:</b> Регулират яркостта на екрана си според
+                  околната светлина.
+                </li>
+                <li>
+                  <b>Роботи, следващи линия:</b> "Виждат" черната линия на бял
+                  фон, защото черното поглъща повече светлина.
+                </li>
+                <li>
+                  <b>Алармени системи:</b> Могат да засекат, ако светлинен лъч
+                  бъде прекъснат.
+                </li>
+              </ul>
+              <p class="font-semibold mt-4 mb-2">
+                Примерен Python код (с gpiozero):
+              </p>
+              <pre><code>from gpiozero import LightSensor, LED
+
+# Сензорът е свързан към пин 17
+ldr = LightSensor(17)
+led = LED(22)
+
+while True:
+    # ldr.value е между 0.0 (тъмно) и 1.0 (светло)
+    if ldr.value < 0.5:
+        print("Тъмно е, светвам лампата!")
+        led.on()
+    else:
+        print("Светло е, гася лампата.")
+        led.off()</code></pre>
+            </div>
+            <div class="md:w-1/2 mt-6 md:mt-0">
+              <div class="interactive-area h-full flex flex-col justify-center">
+                <h4 class="font-bold mb-4">
+                  Интерактивен пример: Робот, следващ линия
+                </h4>
+                <div
+                  class="bg-white h-20 flex justify-center items-center relative rounded"
+                >
+                  <div class="w-full h-2 bg-black absolute"></div>
+                  <div
+                    id="line-follower"
+                    class="robot-icon absolute"
+                    style="left: 50%; transform: translateX(-50%)"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="w-12 h-12 text-blue-500"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 0 0 6.16-12.12A14.98 14.98 0 0 0 9.63 2.18a14.98 14.98 0 0 0-5.84 7.38m5.84 2.58a14.98 14.98 0 0 0-6.16 12.12A14.98 14.98 0 0 0 15.59 21.82a14.98 14.98 0 0 0 5.84-7.38m-5.84-2.58H12"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <p class="mt-4">
+                  Плъзнете, за да промените позицията на робота:
+                </p>
+                <input
+                  type="range"
+                  min="10"
+                  max="90"
+                  value="50"
+                  class="w-full mt-2"
+                  id="light-slider"
+                />
+                <p class="mt-4 font-semibold">
+                  Сензорът "вижда": <span id="light-text">Черна линия</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. Touch Sensor -->
+        <section id="touch" class="sensor-card">
+          <h3 class="text-2xl font-bold text-blue-700 mb-3">
+            3. Сензор за допир (Бутон)
+          </h3>
+          <div class="md:flex md:space-x-8">
+            <div class="md:w-1/2">
+              <img
+                src="https://www.electronicevolution.bg/media/7/405.jpg"
+                alt="Сензор за допир"
+                class="rounded-lg shadow-md mb-4 w-full object-cover"
+              />
+              <p class="font-semibold mb-2">Аналогия: Нашата кожа 🤚</p>
+              <p class="mb-4">
+                Това е най-основният сензор. В най-простия си вид е механичен
+                бутон, който затваря електрическа верига при натиск. Съществуват
+                и по-сложни, капацитивни сензори (като на екрана на телефона
+                ви), които усещат допир без механично движение.
+              </p>
+              <p class="font-semibold mb-2">Още примери от реалния живот:</p>
+              <ul class="list-disc list-inside space-y-1 mb-4">
+                <li>
+                  <b>Роботизирани ръце:</b> Сензор на върха на "пръстите" казва
+                  на ръката кога е хванала обект.
+                </li>
+                <li>
+                  <b>Роботи-играчки:</b> Реагират на докосване или галене.
+                </li>
+                <li>
+                  <b>Асансьори:</b> Бутоните за избиране на етаж са вид сензори
+                  за допир.
+                </li>
+                <li>
+                  <b>"Бъмпери" на роботи:</b> Когато робот се удари в стена,
+                  бронята му натиска бутон и той разбира, че трябва да смени
+                  посоката.
+                </li>
+              </ul>
+              <p class="font-semibold mt-4 mb-2">
+                Примерен Python код (с gpiozero):
+              </p>
+              <pre><code>from gpiozero import Button
+
+# Бутонът е свързан към пин 2
+button = Button(2)
+
+print("Чакам за натискане...")
+button.wait_for_press()
+print("Бутонът беше натиснат!")</code></pre>
+            </div>
+            <div class="md:w-1/2 mt-6 md:mt-0">
+              <div class="interactive-area h-full flex flex-col justify-center">
+                <h4 class="font-bold mb-4">
+                  Интерактивен пример: Роботизирана ръка
+                </h4>
+                <div class="relative w-48 h-24 mx-auto">
+                  <div
+                    id="robot-arm"
+                    class="w-32 h-6 bg-gray-400 rounded absolute bottom-0 left-1/2"
+                    style="
+                      transform-origin: left bottom;
+                      transform: translateX(-50%) rotate(-45deg);
+                      transition: transform 0.5s;
+                    "
+                  ></div>
+                  <div
+                    id="object-box"
+                    class="w-10 h-10 bg-yellow-400 rounded absolute bottom-0 right-0"
+                  ></div>
+                </div>
+                <button id="touch-button" class="btn mt-4">
+                  Докосни обекта
+                </button>
+                <p class="mt-4 font-semibold">
+                  Статус: <span id="touch-text">Движи се...</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. Sound Sensor -->
+        <section id="sound" class="sensor-card">
+          <h3 class="text-2xl font-bold text-blue-700 mb-3">
+            4. Сензор за звук (Микрофон)
+          </h3>
+          <div class="md:flex md:space-x-8">
+            <div class="md:w-1/2">
+              <img
+                src="https://storager2.composity.cloud/elimex/web/2022/08-12/60408400.jpeg"
+                alt="Сензор за звук"
+                class="rounded-lg shadow-md mb-4 w-full object-cover"
+              />
+              <p class="font-semibold mb-2">Аналогия: Нашите уши 👂</p>
+              <p class="mb-4">
+                Този сензор е малък микрофон, който преобразува звуковите вълни
+                в електрически сигнал. Той може да измерва амплитудата на звука
+                (колко е силен) и да каже на робота дали наоколо е тихо или има
+                шум. По-сложните могат да разпознават и честоти.
+              </p>
+              <p class="font-semibold mb-2">Още примери от реалния живот:</p>
+              <ul class="list-disc list-inside space-y-1 mb-4">
+                <li>
+                  <b>Умни асистенти (Alexa, Google Home):</b> "Слушат" за
+                  ключова дума, за да се активират.
+                </li>
+                <li>
+                  <b>Системи за сигурност:</b> Задействат се при звук от счупено
+                  стъкло.
+                </li>
+                <li>
+                  <b>Бебефони:</b> Включват камерата и изпращат известие, когато
+                  бебето плаче.
+                </li>
+                <li>
+                  <b>Интерактивни играчки:</b> Реагират на пляскане с ръце или
+                  други звуци.
+                </li>
+              </ul>
+              <p class="font-semibold mt-4 mb-2">
+                Примерен Python код (концептуален):
+              </p>
+              <pre><code>from gpiozero import InputDevice
+from time import sleep
+
+# Звуковият сензор е свързан към пин 25
+# (Този пример е опростен. Реалните сензори често
+# изискват четене на аналогов сигнал)
+sound_sensor = InputDevice(25)
+
+while True:
+    if sound_sensor.is_active:
+        print("Засечен е силен звук!")
+        # Тук може да се добави логика,
+        # например да се включи аларма
+    sleep(0.1)</code></pre>
+            </div>
+            <div class="md:w-1/2 mt-6 md:mt-0">
+              <div class="interactive-area h-full flex flex-col justify-center">
+                <h4 class="font-bold mb-4">Интерактивен пример: Умна лампа</h4>
+                <div class="w-24 h-24 mx-auto mb-4">
+                  <svg
+                    id="sound-lightbulb"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="#d1d5db"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-full h-full transition-colors"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.311a7.5 7.5 0 0 1-7.5 0c.407-.923.834-1.844 1.294-2.733m11.912 0c.46-.889.887-1.81 1.294-2.733a7.5 7.5 0 0 1-7.5 0m-3.75 0a7.5 7.5 0 0 1 7.5 0m-7.5 0"
+                    />
+                  </svg>
+                </div>
+                <button id="sound-button" class="btn">Плесни с ръце</button>
+                <p class="mt-4 font-semibold">
+                  Статус на лампата: <span id="sound-text">Изключена</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="text-center mt-12">
+          <a
+            href="#"
+            class="inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform transform hover:scale-105"
+          >
+            Към следващия урок &rarr;
+          </a>
+        </div>
+      </main>
+
+      <footer class="text-center mt-16 text-gray-500">
+        <p>
+          &copy; 2024 Интерактивен Урок по Роботика. Създадено за лесно учене.
+          инж. Пламена Янева
+        </p>
+      </footer>
+    </div>
+
+    <script>
+      // 1. Distance Sensor Logic
+      const distanceSlider = document.getElementById("distance-slider");
+      const distanceLight = document.getElementById("distance-light");
+      const distanceText = document.getElementById("distance-text");
+      const robotCar = document.getElementById("robot-car");
+
+      distanceSlider.addEventListener("input", (event) => {
+        const distance = parseInt(event.target.value);
+        robotCar.style.transform = `translateX(${(100 - distance) / 2}px)`;
+
+        distanceLight.classList.remove("active", "warning", "danger");
+
+        if (distance > 60) {
+          distanceLight.classList.add("active");
+          distanceText.textContent = "Всичко е наред";
+        } else if (distance > 25) {
+          distanceLight.classList.add("warning");
+          distanceText.textContent = "Внимание, наближава!";
+        } else {
+          distanceLight.classList.add("danger");
+          distanceText.textContent = "СТОП! Опасност от сблъсък!";
+        }
+      });
+
+      // 2. Light Sensor Logic
+      const lightSlider = document.getElementById("light-slider");
+      const lightText = document.getElementById("light-text");
+      const lineFollower = document.getElementById("line-follower");
+
+      lightSlider.addEventListener("input", (event) => {
+        const position = parseInt(event.target.value);
+        lineFollower.style.left = `${position}%`;
+
+        if (position > 45 && position < 55) {
+          lightText.textContent = "Черна линия";
+          lightText.style.color = "black";
+        } else {
+          lightText.textContent = "Бял фон";
+          lightText.style.color = "#6b7280";
+        }
+      });
+
+      // 3. Touch Sensor Logic
+      const touchButton = document.getElementById("touch-button");
+      const touchText = document.getElementById("touch-text");
+      const robotArm = document.getElementById("robot-arm");
+      let armTouching = false;
+
+      touchButton.addEventListener("click", () => {
+        armTouching = !armTouching;
+        if (armTouching) {
+          robotArm.style.transform = "translateX(-50%) rotate(-15deg)";
+          touchText.textContent = "Докосване! Спирам.";
+          touchButton.textContent = "Отдалечи ръката";
+        } else {
+          robotArm.style.transform = "translateX(-50%) rotate(-45deg)";
+          touchText.textContent = "Движи се...";
+          touchButton.textContent = "Докосни обекта";
+        }
+      });
+
+      // 4. Sound Sensor Logic
+      const soundButton = document.getElementById("sound-button");
+      const soundText = document.getElementById("sound-text");
+      const soundLightbulb = document.getElementById("sound-lightbulb");
+      let soundLightOn = false;
+
+      soundButton.addEventListener("click", () => {
+        soundLightOn = !soundLightOn;
+        if (soundLightOn) {
+          soundLightbulb.style.fill = "#facc15"; // yellow-400
+          soundText.textContent = "Включена";
+        } else {
+          soundLightbulb.style.fill = "#d1d5db"; // gray-300
+          soundText.textContent = "Изключена";
+        }
+      });
+    </script>
+  </body>
+</html>

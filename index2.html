@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="bg">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Урок: Ултразвукови сензори</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        scroll-behavior: smooth;
+      }
+      .lesson-card {
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+          0 2px 4px -2px rgb(0 0 0 / 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .lesson-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+          0 4px 6px -4px rgb(0 0 0 / 0.1);
+      }
+      pre {
+        background-color: #1f2937; /* gray-800 */
+        color: #f3f4f6; /* gray-100 */
+        padding: 1rem;
+        border-radius: 0.5rem;
+        overflow-x: auto;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.9em;
+        text-align: left;
+      }
+      .formula-box {
+        background-color: #eff6ff; /* blue-50 */
+        border-left: 4px solid #3b82f6; /* blue-500 */
+        padding: 1rem;
+        border-radius: 0.5rem;
+        font-family: "Courier New", Courier, monospace;
+        font-weight: bold;
+        font-size: 1.1rem;
+        text-align: center;
+      }
+
+      /* --- Стилове за интерактивна симулация --- */
+      .interactive-area {
+        background-color: #f9fafb; /* gray-50 */
+        border: 2px dashed #d1d5db; /* gray-300 */
+        border-radius: 0.5rem;
+        padding: 2rem 1rem;
+        margin-top: 1.5rem;
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+      }
+      #sim-robot {
+        position: absolute;
+        bottom: 1rem;
+        left: 10%;
+        width: 80px;
+        color: #3b82f6; /* blue-500 */
+        transition: transform 0.3s ease;
+      }
+      #sim-wall {
+        position: absolute;
+        bottom: 0;
+        right: 10%;
+        width: 30px;
+        height: 100%;
+        background-color: #374151; /* gray-700 */
+        border-radius: 5px 5px 0 0;
+      }
+      #sim-wave {
+        position: absolute;
+        bottom: 2.5rem;
+        left: calc(10% + 80px); /* Start from robot */
+        height: 20px;
+        background-color: #fbbf24; /* amber-400 */
+        opacity: 0.6;
+        border-radius: 10px;
+        transition: width 0.15s linear, opacity 0.15s linear;
+        width: 0px; /* Initial width */
+      }
+      #sim-status-light {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 10px;
+        transition: background-color 0.3s ease;
+      }
+      .status-active {
+        background-color: #4ade80;
+      } /* green-400 */
+      .status-warning {
+        background-color: #facc15;
+      } /* yellow-400 */
+      .status-danger {
+        background-color: #f87171;
+      } /* red-400 */
+      /* --- Край на стиловете --- */
+    </style>
+  </head>
+  <body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto max-w-4xl px-4 py-8 md:py-12">
+      <header class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-blue-600 mb-2">
+          Ултразвукови сензори: Принцип на работа
+        </h1>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+          Научете как роботите "виждат" света около себе си, използвайки
+          ехолокация.
+        </p>
+      </header>
+
+      <main>
+        <!-- 1. What is it? -->
+        <section class="lesson-card">
+          <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">
+            1. Какво е ултразвуков сензор?
+          </h2>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            Ултразвуковият сензор е устройство, което измерва разстояние до
+            обект, използвайки звукови вълни. "Ултразвуков" означава, че звукът,
+            който издава, е с толкова висока честота, че човешкото ухо не може
+            да го чуе (точно като кучешка свирка, но дори по-високо).
+          </p>
+          <p class="text-lg text-gray-700 leading-relaxed mb-6">
+            Най-често срещаният модел, който ще видите в хоби проектите, се
+            нарича <strong>HC-SR04</strong> и изглежда ето така:
+          </p>
+          <img
+            src="https://techknowlab.com/wp-content/uploads/2025/02/HC-SR04.jpg"
+            alt="Ултразвуков сензор HC-SR04"
+            class="rounded-lg shadow-md w-full max-w-md mx-auto object-cover"
+          />
+        </section>
+
+        <!-- 2. Analogy -->
+        <section class="lesson-card">
+          <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">
+            2. Аналогията: Ехолокация (Прилепи и Делфини) 🦇
+          </h2>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            Най-лесният начин да разберете как работи сензорът е да си
+            представите прилеп, който лети в тъмна пещера.
+          </p>
+          <ol
+            class="list-decimal list-inside space-y-3 text-lg text-gray-700 leading-relaxed"
+          >
+            <li>
+              <strong>Прилепът "вика"</strong> (издава кратък, писклив звук).
+            </li>
+            <li>
+              <strong>Звукът пътува</strong> през въздуха, докато не се удари в
+              стената на пещерата.
+            </li>
+            <li>
+              <strong>Звукът се отразява</strong> от стената (това е "ехото").
+            </li>
+            <li>
+              <strong>Прилепът "чува" ехото</strong> със своите големи уши.
+            </li>
+          </ol>
+          <p class="text-lg text-gray-700 leading-relaxed mt-4">
+            Чрез измерване на времето, което е минало между "вика" и "ехото",
+            мозъкът на прилепа може да изчисли колко далеч е стената.
+          </p>
+          <p class="text-lg font-bold text-center text-blue-600 mt-6">
+            Ултразвуковият сензор прави абсолютно същото нещо!
+          </p>
+        </section>
+
+        <!-- 3. How it works -->
+        <section class="lesson-card">
+          <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">
+            3. Как работи (Стъпка по стъпка)
+          </h2>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            Сензорът има два основни компонента, които приличат на "очи":
+          </p>
+          <ul
+            class="list-disc list-inside space-y-2 text-lg text-gray-700 leading-relaxed mb-6"
+          >
+            <li>
+              <strong>Предавател (Trigger/Trig):</strong> Това е "устата" на
+              сензора.
+            </li>
+            <li>
+              <strong>Приемник (Echo):</strong> Това е "ухото" на сензора.
+            </li>
+          </ul>
+          <img
+            src="photos/Процес на измерване с ултразвук.png"
+            alt="Диаграма на принципа на работа"
+            class="rounded-lg shadow-md w-full max-w-xl mx-auto object-cover mb-6"
+          />
+
+          <p class="text-lg text-gray-700 leading-relaxed font-semibold mb-4">
+            Ето целият процес, разделен на 4 стъпки:
+          </p>
+          <ol
+            class="list-decimal list-inside space-y-3 text-lg text-gray-700 leading-relaxed"
+          >
+            <li>
+              <strong>"Вик" (Trigger):</strong> Нашият микроконтролер (например
+              Raspberry Pi) изпраща много кратък електрически импулс към `Trig`
+              пина. Това кара предавателя да изпрати кратък ултразвуков "вик"
+              (обикновено 8 импулса звук).
+            </li>
+            <li>
+              <strong>Пътуване на звука:</strong> Звуковата вълна пътува напред
+              със скоростта на звука (около 343 метра в секунда) във въздуха.
+            </li>
+            <li>
+              <strong>"Ехо" (Echo):</strong> Когато вълната удари предмет
+              (например стена или книга), тя се отразява обратно към сензора.
+            </li>
+            <li>
+              <strong>"Слушане" (Echo):</strong> Приемникът (`Echo`) "чува"
+              върналото се ехо. В момента, в който го чуе, той изпраща сигнал
+              обратно към нашия Raspberry Pi.
+            </li>
+          </ol>
+        </section>
+
+        <!-- НОВА ИНТЕРАКТИВНА СЕКЦИЯ -->
+        <section class="lesson-card">
+          <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">
+            Интерактивна симулация
+          </h2>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            Използвайте плъзгача, за да симулирате как роботът измерва
+            разстоянието. Гледайте как "звуковата вълна" (жълтата линия) пътува
+            и как се променя статусът на робота.
+          </p>
+
+          <div class="interactive-area">
+            <div id="sim-robot">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-20 h-20"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125V14.25m-17.25 4.5v-1.875a3.375 3.375 0 0 0 3.375-3.375h1.5a1.125 1.125 0 0 1 1.125 1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75V7.5a2.25 2.25 0 0 1 2.25-2.25h.75a2.25 2.25 0 0 1 2.25 2.25v.75"
+                />
+              </svg>
+            </div>
+            <div id="sim-wave"></div>
+            <div id="sim-wall"></div>
+          </div>
+
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value="70"
+            class="w-full mt-4"
+            id="distance-slider-sim"
+          />
+
+          <div class="mt-4 text-center text-xl font-semibold">
+            Статус: <span id="sim-status-text">Безопасно</span>
+            <div id="sim-status-light" class="status-active"></div>
+          </div>
+        </section>
+
+        <!-- 4. The Magic (Calculation) -->
+        <section class="lesson-card">
+          <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">
+            4. Магията: Изчислението
+          </h2>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            Нашият Raspberry Pi не знае разстоянието, но знае едно много важно
+            нещо: <strong>колко време</strong> е минало между стъпка 1 (вика) и
+            стъпка 4 (ехото). Нека наречем това `ВРЕМЕ`.
+          </p>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            Сега идва малко проста математика:
+          </p>
+          <ul
+            class="list-disc list-inside space-y-2 text-lg text-gray-700 leading-relaxed mb-4"
+          >
+            <li>Знаем, че `Разстояние = Скорост × Време`.</li>
+            <li>
+              Нашата скорост е скоростта на звука (около 34300 сантиметра в
+              секунда).
+            </li>
+          </ul>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            <strong>Но има една уловка!</strong> Измереното `ВРЕМЕ` е за цялото
+            пътуване – <strong>отиване ДО обекта И връщане ОБРАТНО</strong>. Ние
+            искаме да знаем разстоянието само в едната посока.
+          </p>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            Затова формулата е:
+          </p>
+          <div class="formula-box">
+            Разстояние = (ВРЕМЕ × Скорост на звука) / 2
+          </div>
+          <p class="text-lg text-gray-700 leading-relaxed mt-4">
+            За щастие, когато използваме библиотеки като `gpiozero` в Python,
+            всичко това се изчислява автоматично за нас!
+          </p>
+        </section>
+
+        <!-- 5. Python Code -->
+        <section class="lesson-card">
+          <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">
+            5. Примерен Python код (с gpiozero)
+          </h2>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            Ето как бихте използвали този сензор с Raspberry Pi. Библиотеката
+            `gpiozero` прави всичко супер лесно.
+          </p>
+          <pre><code>from gpiozero import DistanceSensor
+from time import sleep
+
+# Казваме на Python, че "устата" (trigger) е на пин 23,
+# а "ухото" (echo) е на пин 24.
+sensor = DistanceSensor(echo=24, trigger=23)
+
+print("Сензорът е готов. Натиснете Ctrl+C за край.")
+
+try:
+    while True:
+        # sensor.distance връща разстоянието в МЕТРИ
+        # Умножаваме по 100, за да го видим в сантиметри
+        razstoqnie_cm = sensor.distance * 100
+        
+        # .1f означава да се покаже само 1 знак след десетичната запетая
+        print(f"Разстояние: {razstoqnie_cm:.1f} cm")
+        
+        # Изчакваме 1 секунда преди следващото измерване
+        sleep(1)
+
+except KeyboardInterrupt:
+    print("Програмата е спряна.")</code></pre>
+        </section>
+
+        <!-- 6. Pros and Cons -->
+        <section class="lesson-card">
+          <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-6">
+            6. Предимства и Недостатъци
+          </h2>
+          <div class="md:grid md:grid-cols-2 md:gap-8">
+            <!-- Pros -->
+            <div>
+              <h3 class="text-xl font-semibold text-green-600 mb-3">
+                ✅ Предимства:
+              </h3>
+              <ul
+                class="list-disc list-inside space-y-2 text-lg text-gray-700 leading-relaxed"
+              >
+                <li>
+                  <strong>Работят на тъмно:</strong> Не се нуждаят от светлина,
+                  за разлика от камерите.
+                </li>
+                <li>
+                  <strong>Надеждни:</strong> Не се влияят от цвета или
+                  прозрачността на обекта (в повечето случаи).
+                </li>
+                <li>
+                  <strong>Евтини:</strong> Много са достъпни за хоби проекти.
+                </li>
+                <li>
+                  <strong>Лесни за използване:</strong> Както видяхте, кодът е
+                  много прост.
+                </li>
+              </ul>
+            </div>
+            <!-- Cons -->
+            <div>
+              <h3 class="text-xl font-semibold text-red-600 mb-3">
+                ❌ Недостатъци:
+              </h3>
+              <ul
+                class="list-disc list-inside space-y-2 text-lg text-gray-700 leading-relaxed"
+              >
+                <li>
+                  <strong>"Глухи" зони:</strong> Не могат да засичат обекти,
+                  които са твърде близо (обикновено под 2-3 см).
+                </li>
+                <li>
+                  <strong>Грешни измервания:</strong> Меки повърхности (килими)
+                  могат да *погълнат* звука и ехото да не се върне.
+                </li>
+                <li>
+                  <strong>Остри ъгли:</strong> Ако обектът е под ъгъл, той може
+                  да отрази звука *настрани*.
+                </li>
+                <li>
+                  <strong>Ограничен обхват:</strong> Обикновено работят
+                  най-добре до 3-4 метра.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. Conclusion -->
+        <section class="lesson-card">
+          <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">
+            7. Заключение
+          </h2>
+          <p class="text-lg text-gray-700 leading-relaxed">
+            Ултразвуковият сензор е като сонар за вашия робот. Той изпраща
+            "вик", слуша за "ехо" и измерва времето между двете, за да изчисли
+            разстоянието. Това е основен и изключително полезен инструмент за
+            всеки проект, който трябва да се ориентира в реалния свят.
+          </p>
+        </section>
+
+        <!-- Next Lesson Button -->
+        <div class="text-center mt-12">
+          <a
+            href="#"
+            class="inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform transform hover:scale-105"
+          >
+            Към следващия урок &rarr;
+          </a>
+        </div>
+      </main>
+
+      <footer class="text-center mt-16 text-gray-500">
+        <p>
+          &copy; 2024 Интерактивен Урок по Роботика. Създадено за лесно учене.
+          инж. Пламена Янева
+        </p>
+      </footer>
+    </div>
+
+    <!-- НОВ СКРИПТ ЗА СИМУЛАЦИЯТА -->
+    <script>
+      const slider = document.getElementById("distance-slider-sim");
+      const robot = document.getElementById("sim-robot");
+      const wave = document.getElementById("sim-wave");
+      const statusText = document.getElementById("sim-status-text");
+      const statusLight = document.getElementById("sim-status-light");
+
+      function updateSimulation(value) {
+        // value е от 0 до 100 (0=близо, 100=далеч)
+        const distancePercent = value / 100;
+
+        // 1. Актуализиране на позицията на робота
+        // Роботът се движи от 10% (далеч) до 60% (близо)
+        const robotLeft = 10 + (1 - distancePercent) * 50;
+        robot.style.left = `${robotLeft}%`;
+
+        // 2. Актуализиране на звуковата вълна
+        // Вълната се простира от робота до стената
+        const waveStart = robotLeft + (80 / window.innerWidth) * 100; // 80px ширина на робота в %
+        const wallLeft = 90 - (30 / window.innerWidth) * 100; // 30px ширина на стената в %
+        const waveWidth = wallLeft - waveStart;
+
+        wave.style.left = `${waveStart}%`;
+        wave.style.width = `${waveWidth}%`;
+
+        // Симулиране на "изпращане" на вълната
+        wave.style.opacity = "0.6";
+        setTimeout(() => {
+          wave.style.opacity = "0";
+        }, 150);
+
+        // 3. Актуализиране на статуса
+        statusLight.classList.remove(
+          "status-active",
+          "status-warning",
+          "status-danger"
+        );
+        if (distancePercent > 0.6) {
+          // > 60%
+          statusText.textContent = "Безопасно";
+          statusLight.classList.add("status-active");
+        } else if (distancePercent > 0.2) {
+          // 20% - 60%
+          statusText.textContent = "Внимание!";
+          statusLight.classList.add("status-warning");
+        } else {
+          // < 20%
+          statusText.textContent = "СТОП! Опасност!";
+          statusLight.classList.add("status-danger");
+        }
+      }
+
+      slider.addEventListener("input", (event) => {
+        updateSimulation(event.target.value);
+      });
+
+      // Първоначално зареждане
+      updateSimulation(slider.value);
+    </script>
+  </body>
+</html>

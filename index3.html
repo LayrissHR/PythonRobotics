@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="bg">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Урок: PIR Сензори за Движение</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        scroll-behavior: smooth;
+      }
+      .lesson-card {
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+          0 2px 4px -2px rgb(0 0 0 / 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .lesson-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+          0 4px 6px -4px rgb(0 0 0 / 0.1);
+      }
+      pre {
+        background-color: #1f2937; /* gray-800 */
+        color: #f3f4f6; /* gray-100 */
+        padding: 1rem;
+        border-radius: 0.5rem;
+        overflow-x: auto;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.9em;
+        text-align: left;
+      }
+      /* --- Стилове за симулация --- */
+      .interactive-area {
+        background-color: #f9fafb; /* gray-50 */
+        border: 2px dashed #d1d5db; /* gray-300 */
+        border-radius: 0.5rem;
+        padding: 2rem 1rem;
+        margin-top: 1.5rem;
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+      }
+      #pir-person {
+        position: absolute;
+        bottom: 30%;
+        left: -10%; /* Start off-screen */
+        width: 80px;
+        color: #f87171; /* red-400 */
+        transition: left 3s linear; /* 3-second move time */
+      }
+      #pir-sensor {
+        position: absolute;
+        top: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        color: #3b82f6; /* blue-500 */
+      }
+      #pir-zones {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 300%;
+        height: 100%;
+        background: repeating-conic-gradient(#0000 0% 5%, #3b82f633 5% 10%);
+        opacity: 0.3;
+      }
+      #pir-status-light {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 10px;
+        transition: background-color 0.3s ease;
+      }
+      .status-no-motion {
+        background-color: #6b7280;
+      } /* gray-500 */
+      .status-motion {
+        background-color: #4ade80;
+      } /* green-400 */
+    </style>
+  </head>
+  <body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto max-w-4xl px-4 py-8 md:py-12">
+      <header class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-blue-600 mb-2">
+          Урок: PIR Сензори за Движение
+        </h1>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+          Научете как роботите и алармите "усещат" кога някой е в стаята.
+        </p>
+      </header>
+
+      <main>
+        <!-- 1. What is it? -->
+        <section class="lesson-card">
+          <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">
+            1. Какво е PIR сензор?
+          </h2>
+          <p classS="text-lg text-gray-700 leading-relaxed mb-4">
+            PIR сензорът е сензор за движение. Името му идва от
+            <strong>P</strong>assive <strong>I</strong>nfra<strong>R</strong>ed
+            (Пасивен Инфрачервен).
+          </p>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            "Инфрачервен" означава, че той "вижда" топлинни подписи. Всичко,
+            което излъчва топлина (като хора, животни и дори коли) излъчва
+            инфрачервена радиация.
+          </p>
+          <p class="text-lg text-gray-700 leading-relaxed mb-6">
+            "Пасивен" е ключовата дума. За разлика от ултразвуковия сензор,
+            който "вика" (изпраща сигнал) и "слуша" (приема ехо), PIR сензорът е
+            <strong>напълно пасивен</strong>. Той не излъчва нищо. Той просто
+            "гледа" и чака да се появи промяна в топлината в стаята.
+          </p>
+          <img
+            src="https://strobotic.com/photos/company_photos/975654a8.jpg"
+            alt="PIR Сензор за движение HC-SR501"
+            class="rounded-lg shadow-md w-full max-w-md mx-auto object-cover"
+          />
+        </section>
+
+        <!-- 2. Analogy -->
+        <section class="lesson-card">
+          <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">
+            2. Аналогията: "Топлинни Очила" ☀️
+          </h2>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            Представете си, че сте охранител и носите специални очила, които
+            виждат само топлина. За вас цялата стая (стени, под, мебели) е
+            "студена" и изглежда тъмносиня.
+          </p>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            Изведнъж, през вратата влиза човек. Във вашите очила, той е ярко
+            "топло" петно (жълто-червено), което се движи през тъмносиния фон.
+          </p>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            PIR сензорът е точно това – той "гледа" стаята и е калибриран да
+            игнорира "студения" фон. Когато "топло" тяло (като човек) се
+            придвижи през неговото полезрение, сензорът засича тази *промяна* и
+            вдига аларма (изпраща електрически сигнал).
+          </p>
+          <p class="text-lg font-bold text-center text-blue-600 mt-6">
+            Важно: PIR сензорът не засича самото присъствие, а **ПРОМЯНАТА** или
+            **ДВИЖЕНИЕТО** на топлина.
+          </p>
+        </section>
+
+        <!-- 3. How it works -->
+        <section class="lesson-card">
+          <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">
+            3. Как работи (Стъпка по стъпка)
+          </h2>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            Може би се чудите за какво служи големият бял "купол" отгоре? Това
+            не е просто украса, а най-важната част!
+          </p>
+
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">
+            А. Френелова Леща (Белият Купол)
+          </h3>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            Това се нарича <strong>Френелова леща (Fresnel Lens)</strong>. Тя не
+            е една голяма леща, а се състои от много малки, концентрични лещи.
+            Нейната работа е да разделя цялото полезрение на сензора на
+            множество "зони" или "сектори".
+          </p>
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Fresnel_lens.svg/500px-Fresnel_lens.svg.png"
+            alt="Диаграма на Френелова леща"
+            class="rounded-lg shadow-md w-full max-w-xl mx-auto object-cover mb-6"
+          />
+
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">
+            Б. Пироелектрическият Сензор (Вътре)
+          </h3>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            Вътре в сензора, под купола, се крие истинският сензорен елемент.
+            Той обикновено има **два** правоъгълни сензора един до друг.
+          </p>
+
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">
+            Целият Процес:
+          </h3>
+          <ol
+            class="list-decimal list-inside space-y-3 text-lg text-gray-700 leading-relaxed"
+          >
+            <li>
+              <strong>Покой (Idle):</strong> В празна стая, двата вътрешни
+              сензора "виждат" едно и също количество "студена" инфрачервена
+              радиация. Те са в баланс, сигнал няма.
+            </li>
+            <li>
+              <strong>Движение (Motion):</strong> "Топло" тяло (човек) влиза в
+              една от зоните, създадени от лещата. То първо попада върху обхвата
+              на **първия** вътрешен сензор. Това създава *дисбаланс* (единият
+              вижда "топло", другият "студено").
+              <strong>Сензорът се задейства!</strong>
+            </li>
+            <li>
+              <strong>Продължаване (Movement):</strong> Човекът продължава да се
+              движи и попада в обхвата на **втория** вътрешен сензор. Това
+              поддържа дисбаланса и поддържа сигнала активен.
+            </li>
+            <li>
+              <strong>Спиране (Stop):</strong> Ако човекът спре да се движи, той
+              става част от "фона". Двата вътрешни сензора отново се балансират
+              (и двата "виждат" еднакво, макар и по-топло). Сигналът спира, дори
+              човекът да е още в стаята!
+            </li>
+          </ol>
+        </section>
+
+        <!-- Интерактивна симулация -->
+        <section class="lesson-card">
+          <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">
+            Интерактивна симулация
+          </h2>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            Натиснете бутона, за да симулирате човек, който преминава през
+            "зоните" на сензора. Гледайте как статусът се променя, когато се
+            засече *движение*.
+          </p>
+
+          <div class="interactive-area">
+            <div id="pir-zones"></div>
+            <div id="pir-sensor">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2.5-4h5c.28 0 .5.22.5.5s-.22.5-.5.5h-5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5zm0-2h5c.28 0 .5.22.5.5s-.22.5-.5.5h-5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5zm0-2h5c.28 0 .5.22.5.5s-.22.5-.5.5h-5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5z"
+                />
+              </svg>
+            </div>
+            <div id="pir-person">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-20 h-20"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A1.875 1.875 0 0 1 18.12 22.5h-12.24a1.875 1.875 0 0 1-1.379-2.382Z"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <button
+            id="simulate-pir"
+            class="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform transform hover:scale-105"
+          >
+            Симулирай движение
+          </button>
+
+          <div class="mt-4 text-center text-xl font-semibold">
+            Статус: <span id="pir-status-text">Няма движение</span>
+            <div id="pir-status-light" class="status-no-motion"></div>
+          </div>
+        </section>
+
+        <!-- 5. Sensor Adjustments -->
+        <section class="lesson-card">
+          <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">
+            5. Настройки на сензора (Важно!)
+          </h2>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            Повечето PIR сензори (като HC-SR501) имат две малки оранжеви
+            "врътки" (потенциометри) за настройка:
+          </p>
+          <img
+            src="/photos/потенциометър.png"
+            alt="Настройки на PIR сензор"
+            class="rounded-lg shadow-md w-full max-w-md mx-auto object-cover mb-6"
+          />
+          <ul
+            class="list-disc list-inside space-y-3 text-lg text-gray-700 leading-relaxed"
+          >
+            <li>
+              <strong>Чувствителност (Sensitivity):</strong> Контролира колко
+              "голямо" трябва да е движението, за да се задейства, или колко
+              далеч "вижда" сензорът (обикновено от 3 до 7 метра).
+            </li>
+            <li>
+              <strong>Време (Time Delay):</strong> Контролира колко дълго
+              сензорът ще държи сигнала `HIGH` (включен) *след* като е засечено
+              движение (например от 5 секунди до 5 минути). Това е полезно, за
+              да не "мига" лампата ви, докато се движите.
+            </li>
+          </ul>
+        </section>
+
+        <!-- 6. Python Code -->
+        <section class="lesson-card">
+          <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">
+            6. Примерен Python код (с gpiozero)
+          </h2>
+          <p class="text-lg text-gray-700 leading-relaxed mb-4">
+            В `gpiozero` работата с PIR сензор е изключително лесна. Той се
+            нарича `MotionSensor`.
+          </p>
+          <pre><code>from gpiozero import MotionSensor, LED
+from time import sleep
+
+# Казваме на Python, че имаме сензор за движение на пин 4
+pir = MotionSensor(4)
+# Имаме и светодиод на пин 17
+led = LED(17)
+
+print("Сензорът се калибрира (около 30 сек)... Моля, не се движете.")
+pir.wait_for_no_motion() # Чакаме сензорът да се "успокои"
+print("Сензорът е готов!")
+
+try:
+    while True:
+        if pir.motion_detected:
+            print("Засечено движение!")
+            led.on()
+            sleep(1) # Държим лампата светната поне 1 сек
+        else:
+            print("Няма движение.")
+            led.off()
+        
+        sleep(0.5) # Проверяваме на всеки половин секунда
+
+except KeyboardInterrupt:
+    print("Програмата е спряна.")
+</code></pre>
+          <p class="text-lg text-gray-700 leading-relaxed mt-4">
+            <strong>Още по-лесен начин (с вградени събития):</strong>
+          </p>
+          <pre><code>from gpiozero import MotionSensor, LED
+from signal import pause
+
+pir = MotionSensor(4)
+led = LED(17)
+
+print("Сензорът е готов!")
+
+# Казваме на програмата:
+# "Когато има движение, изпълни функцията led.on"
+pir.when_motion = led.on
+
+# "Когато НЯМА движение, изпълни функцията led.off"
+pir.when_no_motion = led.off
+
+# Оставяме програмата да работи и да чака за събития
+pause()
+</code></pre>
+        </section>
+
+        <!-- 7. Pros and Cons -->
+        <section class="lesson-card">
+          <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-6">
+            7. Предимства и Недостатъци
+          </h2>
+          <div class="md:grid md:grid-cols-2 md:gap-8">
+            <!-- Pros -->
+            <div>
+              <h3 class="text-xl font-semibold text-green-600 mb-3">
+                ✅ Предимства:
+              </h3>
+              <ul
+                class="list-disc list-inside space-y-2 text-lg text-gray-700 leading-relaxed"
+              >
+                <li>
+                  <strong>Пасивни (ниска консумация):</strong> Харчат
+                  изключително малко ток, защото само "слушат".
+                </li>
+                <li><strong>Евтини:</strong> Много са достъпни.</li>
+                <li>
+                  <strong>Работят в пълен мрак:</strong> "Виждат" топлина, не
+                  светлина.
+                </li>
+                <li>
+                  <strong>Добри за хора/животни:</strong> Перфектни за засичане
+                  на топлокръвни.
+                </li>
+              </ul>
+            </div>
+            <!-- Cons -->
+            <div>
+              <h3 class="text-xl font-semibold text-red-600 mb-3">
+                ❌ Недостатъци:
+              </h3>
+              <ul
+                class="list-disc list-inside space-y-2 text-lg text-gray-700 leading-relaxed"
+              >
+                <li>
+                  <strong>Засичат само ДВИЖЕНИЕ:</strong> Ако стоите абсолютно
+                  неподвижно, сензорът ще се "изключи".
+                </li>
+                <li>
+                  <strong>Фалшиви аларми:</strong> Внезапен приток на топъл
+                  въздух (от климатик) или бързо движещи се сенки (в редки
+                  случаи) могат да ги задействат.
+                </li>
+                <li>
+                  <strong>Не измерват разстояние:</strong> Казват само "Да" или
+                  "Не" за движение, не и колко е далеч.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- 8. Conclusion -->
+        <section class="lesson-card">
+          <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">
+            8. Заключение
+          </h2>
+          <p class="text-lg text-gray-700 leading-relaxed">
+            PIR сензорите са "пасивните пазачи" на света на роботиката. Те не
+            "викат", а "наблюдават" за **промени в топлината**. Те са идеални за
+            проекти като автоматично осветление, алармени системи или за
+            "събуждане" на робот, когато някой се приближи.
+          </p>
+        </section>
+
+        <!-- Next Lesson Button -->
+        <div class="text-center mt-12">
+          <a
+            href="#"
+            class="inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform transform hover:scale-105"
+          >
+            Към следващия урок &rarr;
+          </a>
+        </div>
+      </main>
+
+      <footer class="text-center mt-16 text-gray-500">
+        <p>&copy; 2024 Интерактивен Урок по Роботика. инж. Пламена Янева</p>
+      </footer>
+    </div>
+
+    <!-- Скрипт за симулацията -->
+    <script>
+      const simButton = document.getElementById("simulate-pir");
+      const person = document.getElementById("pir-person");
+      const statusText = document.getElementById("pir-status-text");
+      const statusLight = document.getElementById("pir-status-light");
+      let isSimulating = false;
+
+      simButton.addEventListener("click", () => {
+        if (isSimulating) return; // Не позволявай повторно натискане
+
+        isSimulating = true;
+        person.style.transition = "none"; // Нулиране на transition
+        person.style.left = "-10%"; // Връщане в началото
+
+        // Малко забавяне, за да може браузърът да регистрира нулирането
+        setTimeout(() => {
+          person.style.transition = "left 3s linear";
+          person.style.left = "110%"; // Движение през целия екран
+
+          statusText.textContent = "Засечено движение!";
+          statusLight.classList.remove("status-no-motion");
+          statusLight.classList.add("status-motion");
+
+          // Това симулира "Time Delay" - сигналът остава активен
+          // докато движението спре + още малко
+          // Тук ще го оставим активен за 3 секунди
+        }, 50);
+
+        // След 3 секунди (когато анимацията приключи)
+        setTimeout(() => {
+          statusText.textContent = "Няма движение";
+          statusLight.classList.remove("status-motion");
+          statusLight.classList.add("status-no-motion");
+
+          // Връщане в изходна позиция за следваща симулация
+          person.style.transition = "none";
+          person.style.left = "-10%";
+          isSimulating = false;
+        }, 3050); // 3000ms за анимация + 50ms забавяне
+      });
+    </script>
+  </body>
+</html>

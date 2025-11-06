@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Урок: Сензори DHT11/DHT22</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .lesson-card {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .lesson-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        pre {
+            background-color: #1f2937; /* gray-800 */
+            color: #f3f4f6; /* gray-100 */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            text-align: left;
+        }
+        /* --- Стилове за симулация --- */
+        .interactive-area {
+            background-color: #f9fafb; /* gray-50 */
+            border: 2px dashed #d1d5db; /* gray-300 */
+            border-radius: 0.5rem;
+            padding: 2rem 1.5rem;
+            margin-top: 1.5rem;
+        }
+        #dht-display {
+            background-color: #1f2937; /* gray-800 */
+            color: #f9fafb; /* gray-50 */
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            border: 4px solid #374151; /* gray-700 */
+        }
+        #dht-status-panel {
+            background-color: #eff6ff; /* blue-50 */
+            border-left: 4px solid #3b82f6; /* blue-500 */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        .comparison-table th {
+            background-color: #f3f4f6;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .comparison-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto max-w-4xl px-4 py-8 md:py-12">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-blue-600 mb-2">Сензори за Температура и Влажност (DHT11/DHT22)</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">Научете как роботите "усещат" времето и климата около тях.</p>
+        </header>
+
+        <main>
+            <!-- 1. What is it? -->
+            <section class="lesson-card">
+                <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">1. Какво е DHT сензор?</h2>
+                <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                    DHT сензорите са малки, евтини "метеорологични станции" за вашия робот. Те са комбинирани сензори, които измерват две неща едновременно:
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-lg text-gray-700 leading-relaxed mb-6">
+                    <li><strong>Температура:</strong> Колко е топло или студено.</li>
+                    <li><strong>Относителна Влажност:</strong> Колко "насите" е въздухът с водна пара (колко е влажно).</li>
+                </ul>
+                <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                    Те са изключително популярни, защото са "дигитални". Това означава, че те сами извършват измерванията и изпращат на нашия Raspberry Pi готов, лесен за четене дигитален сигнал (данни).
+                </p>
+                <img src="https://www.flyrobo.in/image/cache/catalog/blog/DHT11%20vs.%20DHT22%20The%20Duel%20of%20Temperature%20and%20Humidity%20Sensors/DHT11%20vs.%20DHT22%20The%20Duel%20of%20Temperature%20and%20Humidity%20Sensors1-600x315w.jpg" alt="DHT11 и DHT22 сензори" class="rounded-lg shadow-md w-full max-w-md mx-auto object-cover">
+            </section>
+
+            <!-- 2. Analogy -->
+            <section class="lesson-card">
+                <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">2. Аналогията: Дигитален Репортер 📰</h2>
+                <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                    Представете си, че искате да знаете какво е времето навън:
+                </p>
+                <ul class="list-disc list-inside space-y-3 text-lg text-gray-700 leading-relaxed">
+                    <li><strong>Аналогов начин:</strong> Да излезете навън, да погледнете един термометър (аналогов), да оближете пръст и да го вдигнете, за да усетите влагата (аналогово). Това е сложно и неточно.</li>
+                    <li><strong>DHT начин (Дигитален):</strong> Да се обадите на дигитален "репортер" (сензора). Той не ви казва "май е топло" или "малко е влажно". Той ви изпраща точен, дигитален "доклад" по жицата, който гласи:
+                    <br><strong>"ДОКЛАД: Температурата е 24.5°C, Влажността е 52%."</strong></li>
+                </ul>
+                <p class="text-lg text-gray-700 leading-relaxed mt-4">
+                    Това улеснява много работата на нашия микроконтролер. Той не трябва да гадае, а просто да прочете доклада.
+                </p>
+            </section>
+
+            <!-- 3. How it works (Simplified) -->
+            <section class="lesson-card">
+                <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">3. Как работи (Опростено)</h2>
+                <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                    Вътре в пластмасовата кутийка, сензорът има два различни компонента:
+                </p>
+                
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">А. За Температура: Термистор</h3>
+                <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                    Това е специален вид съпротивление (резистор), чиято "проводимост" се променя много предвидимо с температурата.
+                    <br><strong>Аналогия:</strong> Мислете за него като за "тръба", която се свива, когато е студено (пуска по-малко ток) и се разширява, когато е топло (пуска повече ток). Малкият чип вътре измерва това и го превръща в градуси.
+                </p>
+
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Б. За Влажност: Капацитивен Сензор</h3>
+                <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                    Това е по-сложно. Най-просто казано, той е като "сандвич".
+                    <br><strong>Аналогия:</strong> Представете си две метални плочки (хляб) и специална "гъба" (материал, наречен диелектрик) между тях. Тази "гъба" поема влага от въздуха. Колкото повече влага поеме, толкова повече се променят електрическите ѝ свойства (капацитет). Чипът измерва тази промяна и я превръща в проценти влажност.
+                </p>
+            </section>
+            
+            <!-- 4. DHT11 vs. DHT22 -->
+            <section class="lesson-card">
+                <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">4. DHT11 срещу DHT22: Кой да избера?</h2>
+                <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                    Има два основни "вкуса" на този сензор. DHT11 е син, а DHT22 (познат и като AM2302) е бял. Белият е по-добрият, но и по-скъп.
+                </p>
+                <table class="w-full text-lg comparison-table rounded-lg overflow-hidden border border-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="w-1/3">Характеристика</th>
+                            <th class="w-1/3">DHT11 (Син)</th>
+                            <th class="w-1/3">DHT22 (Бял)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Обхват (Темп.)</td>
+                            <td>0°C до 50°C</td>
+                            <td><strong>-40°C до 80°C</strong> (Много по-добър)</td>
+                        </tr>
+                        <tr>
+                            <td>Точност (Темп.)</td>
+                            <td>±2°C (Не особено точен)</td>
+                            <td><strong>±0.5°C</strong> (Много точен)</td>
+                        </tr>
+                        <tr>
+                            <td>Обхват (Влажност)</td>
+                            <td>20% до 80%</td>
+                            <td><strong>0% до 100%</strong></td>
+                        </tr>
+                         <tr>
+                            <td>Точност (Влажност)</td>
+                            <td>±5%</td>
+                            <td><strong>±2%</strong> (Много по-точен)</td>
+                        </tr>
+                         <tr>
+                            <td>Време за четене</td>
+                            <td>1 секунда (По-бърз)</td>
+                            <td>2 секунди (По-бавен)</td>
+                        </tr>
+                         <tr>
+                            <td>Цена</td>
+                            <td>Евтин</td>
+                            <td>~2-3 пъти по-скъп</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="text-lg text-gray-700 leading-relaxed mt-6">
+                    <strong>Извод:</strong> Ако просто си играете или правите проект, където "горе-долу" е достатъчно (напр. "Дали е топло в стаята?"), <strong>DHT11</strong> е супер. Ако правите нещо по-сериозно (метеорологична станция, инкубатор, терариум), където точността е важна, вземете <strong>DHT22</strong>.
+                </p>
+            </section>
+            
+            <!-- Интерактивна симулация -->
+            <section class="lesson-card">
+                <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">Интерактивна симулация: Метео-станция</h2>
+                <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                    Плъзнете слайдерите, за да симулирате промяна в околната среда. Вижте как дигиталният "доклад" на сензора се променя и как роботът би реагирал.
+                </p>
+                
+                <div class="interactive-area">
+                    <!-- Sliders -->
+                    <div class="mb-4">
+                        <label for="temp-slider" class="block font-semibold mb-1">🌡️ Промени Температурата (°C)</label>
+                        <input type="range" min="0" max="40" value="22" class="w-full" id="temp-slider">
+                    </div>
+                    <div class="mb-4">
+                        <label for="hum-slider" class="block font-semibold mb-1">💧 Промени Влажността (%)</label>
+                        <input type="range" min="10" max="90" value="45" class="w-full" id="hum-slider">
+                    </div>
+
+                    <!-- Display -->
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2 text-center">Дисплей на Станцията</h3>
+                    <div id="dht-display">
+                        <p>Темп: <span id="temp-value">22</span>°C</p>
+                        <p>Влаж: <span id="hum-value">45</span>%</p>
+                    </div>
+
+                    <!-- Status Panel -->
+                    <div id="dht-status-panel">
+                        <span>💬 Статус: Условията са комфортни.</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Python Code -->
+            <section class="lesson-card">
+                <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">6. Примерен Python код (Специална Библиотека)</h2>
+                <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                    <strong>Много важно!</strong> Тези сензори не работят директно с `gpiozero`. Те използват свой собствен, много специфичен "език" (протокол) за комуникация, който изисква перфектен тайминг.
+                </p>
+                <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                    Затова трябва да инсталираме специална библиотека, създадена от Adafruit.
+                </p>
+                <pre><code># Първо, инсталирайте библиотеката в Терминала:
+pip install adafruit-circuitpython-dht
+</code></pre>
+                <p class="text-lg text-gray-700 leading-relaxed mt-4 mb-4">
+                    След това можете да използвате този код. Обърнете внимание, че използваме `board`, за да назовем пина, а не само число.
+                </p>
+                <pre><code>import time
+import board  # Тази библиотека помага за управление на пиновете
+import adafruit_dht
+
+# Казваме на Python, че имаме DHT22 (белият)
+# и той е свързан към пин D4 (това е GPIO 4)
+# Ако имате DHT11 (синият), сменете dht.DHT22 с dht.DHT11
+dhtSensor = adafruit_dht.DHT22(board.D4)
+
+print("Стартирам измервания. Натиснете Ctrl+C за край.")
+
+try:
+    while True:
+        try:
+            # Опитай да прочетеш температурата и влажността
+            temp_c = dhtSensor.temperature
+            humidity = dhtSensor.humidity
+
+            if temp_c is not None and humidity is not None:
+                print(f"Температура: {temp_c:.1f}°C, Влажност: {humidity:.1f}%")
+            else:
+                print("Грешка при четене. Пропускам...")
+
+        except RuntimeError as error:
+            # Тези сензори понякога дават грешки, това е нормално
+            print(error.args[0])
+            time.sleep(2.0) # Почиваме 2 сек при грешка
+            continue
+        except Exception as error:
+            dhtSensor.exit()
+            raise error
+
+        # Сензорите са бавни, не можем да четем по-бързо от 1-2 сек.
+        time.sleep(2.0)
+
+except KeyboardInterrupt:
+    print("Програмата е спряна.")
+    dhtSensor.exit()
+</code></pre>
+            </section>
+
+            <!-- 7. Conclusion -->
+            <section class="lesson-card">
+                <h2 class="text-2xl md:text-3xl font-bold text-blue-700 mb-4">7. Заключение</h2>
+                <p class="text-lg text-gray-700 leading-relaxed">
+                    DHT сензорите са мощен, евтин и лесен начин да дадете на вашия робот или проект "усещане" за околната среда. Те са основата за всякакви проекти за <strong>автоматизация на дома</strong> (като "включи вентилатора, ако стане по-топло от 25°C") или <strong>метеорологични станции</strong>.
+                </p>
+            </section>
+            
+            
+
+        </main>
+    </div>
+    
+    <!-- Скрипт за симулацията -->
+    <script>
+        const tempSlider = document.getElementById('temp-slider');
+        const humSlider = document.getElementById('hum-slider');
+        const tempValue = document.getElementById('temp-value');
+        const humValue = document.getElementById('hum-value');
+        const statusPanel = document.getElementById('dht-status-panel');
+
+        function updateDisplay() {
+            const temp = tempSlider.value;
+            const hum = humSlider.value;
+
+            // Актуализиране на дисплея
+            tempValue.textContent = temp;
+            humValue.textContent = hum;
+
+            // Актуализиране на статуса
+            let statusMessages = [];
+            
+            // Температурен статус
+            if (temp > 30) {
+                statusMessages.push("🥵 Горещо! Пусни вентилатор.");
+            } else if (temp > 25) {
+                statusMessages.push("☀️ Топло е.");
+            } else if (temp < 18) {
+                statusMessages.push("🥶 Студено! Пусни отопление.");
+            } else {
+                statusMessages.push("쾌 Комфортна температура.");
+            }
+
+            // Статус на влажност
+            if (hum > 70) {
+                statusMessages.push("💧 Много е влажно!");
+            } else if (hum < 30) {
+                statusMessages.push("🌵 Много е сухо!");
+            } else {
+                statusMessages.push("👍 Влажността е добре.");
+            }
+            
+            statusPanel.innerHTML = `<span>💬 ${statusMessages[0]}<br>💬 ${statusMessages[1]}</span>`;
+        }
+
+        // Добавяне на event listeners
+        tempSlider.addEventListener('input', updateDisplay);
+        humSlider.addEventListener('input', updateDisplay);
+
+        // Първоначално зареждане
+        updateDisplay();
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивен Урок: Сензори DHT11 / DHT22</title>
+    <!-- Зареждане на Tailwind CSS за бърз и красив дизайн -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Използване на модерен шрифт -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Прилагане на шрифта Inter по подразбиране */
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        /* Стил за кодовите блокове (Arduino/C++) */
+        code.arduino {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.05em;
+            color: #f8fafc; /* nearly white */
+            background-color: #0f172a; /* very dark blue */
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+        pre code.arduino {
+            display: block;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            line-height: 1.6;
+        }
+        /* Стил за коментари в кода */
+        code.arduino .comment {
+            color: #64748b; /* lighter gray */
+        }
+        /* Стил за ключови думи */
+        code.arduino .keyword {
+            color: #facc15; /* yellow */
+        }
+        /* Стил за функции */
+        code.arduino .function {
+            color: #60a5fa; /* light blue */
+        }
+         /* Стил за #define и #include */
+        code.arduino .preprocessor {
+            color: #f472b6; /* pink */
+        }
+        /* Стил за детайлите (акордеон) */
+        details > summary {
+            cursor: pointer;
+            font-weight: 500;
+            color: #2563eb; /* blue */
+            margin-top: 10px;
+        }
+        details[open] {
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <!-- Основен контейнер -->
+    <div class="container max-w-5xl mx-auto p-6 lg:p-10">
+
+        <!-- Въведение -->
+        <section class="bg-white p-8 rounded-xl shadow-lg mb-8">
+            <h2 class="text-3xl font-bold text-blue-700 mb-4">Какво е DHT сензор?</h2>
+            <p class="mb-4 text-lg">Представи си, че твоето Arduino (или друг микроконтролер) е "мозъкът" на един проект. Е, сензорите DHT са неговите "сетива". По-конкретно, те са като "кожата" – усещат колко е топло и колко е влажно във въздуха около тях.</p>
+            <p class="mb-4 text-lg">Те са <strong class="text-blue-600">дигитални</strong> сензори, което означава, че вътре в тях има малък чип, който върши цялата сложна работа. Той измерва данните и ни ги изпраща в готов, "сдъвкан" вид, който е лесен за четене от нашия микроконтролер.</p>
+            <p class="text-lg">Днес ще се научим как да ги "завържем" за един проект и как да "говорим" с тях, за да ни кажат каква е температурата и влажността.</p>
+        </section>
+
+        <!-- Сравнение: DHT11 vs DHT22 -->
+        <section class="bg-white p-8 rounded-xl shadow-lg mb-8">
+            <h2 class="text-3xl font-bold text-blue-700 mb-4">Звездите на урока: <code class="arduino">DHT11</code> vs <code class="arduino">DHT22</code></h2>
+            <p class="mb-4 text-lg">Това са двамата "братовчеди". Приличат си, но не са съвсем еднакви. <code class="arduino">DHT11</code> е по-малкото, по-евтино братче, а <code class="arduino">DHT22</code> е по-големият, по-способен и по-точен батко.</p>
+            
+            <div class="flex justify-center my-6">
+                
+            </div>
+            
+            <p class="mb-4 text-lg">Най-лесният начин да ги различиш е по цвета: <code class="arduino">DHT11</code> е <strong>син</strong>, а <code class="arduino">DHT22</code> е <strong>бял</strong>.</p>
+            
+            <h4 class="text-xl font-semibold mt-6 mb-2">Сравнителна таблица:</h4>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse rounded-lg overflow-hidden shadow-md mt-4">
+                    <thead class="bg-gray-800 text-white">
+                        <tr>
+                            <th class="p-3 border-b border-gray-600">Характеристика</th>
+                            <th class="p-3 border-b border-gray-600">DHT11 (Син)</th>
+                            <th class="p-3 border-b border-gray-600">DHT22 (Бял)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white">
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 border-b border-gray-200 font-semibold">Обхват (Темп.)</td>
+                            <td class="p-3 border-b border-gray-200">0°C до 50°C</td>
+                            <td class="p-3 border-b border-gray-200">-40°C до 80°C</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 border-b border-gray-200 font-semibold">Точност (Темп.)</td>
+                            <td class="p-3 border-b border-gray-200">±2°C</td>
+                            <td class="p-3 border-b border-gray-200">±0.5°C</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 border-b border-gray-200 font-semibold">Обхват (Влажност)</td>
+                            <td class="p-3 border-b border-gray-200">20% до 80%</td>
+                            <td class="p-3 border-b border-gray-200">0% до 100%</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 border-b border-gray-200 font-semibold">Точност (Влажност)</td>
+                            <td class="p-3 border-b border-gray-200">±5%</td>
+                            <td class="p-3 border-b border-gray-200">±2%</td>
+                        </tr>
+                         <tr class="hover:bg-gray-50">
+                            <td class="p-3 border-b border-gray-200 font-semibold">Скорост на четене</td>
+                            <td class="p-3 border-b border-gray-200">1 четене/секунда (1Hz)</td>
+                            <td class="p-3 border-b border-gray-200">1 четене/2 секунди (0.5Hz)</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 border-b border-gray-200 font-semibold">Цена</td>
+                            <td class="p-3 border-b border-gray-200">Ниска</td>
+                            <td class="p-3 border-b border-gray-200">Средна (2-3 пъти по-скъп)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Мини задача 1 -->
+            <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg mt-6">
+                <h5 class="text-lg font-semibold mb-3">⚡ Мини-Задача 1:</h5>
+                <p class="mb-3">Искаш да направиш метеорологична станция, която да мери температури <strong>под нулата</strong> през зимата. Кой сензор трябва да избереш?</p>
+                <div id="task1-options">
+                    <label class="block mb-2"><input type="radio" name="task1" value="a"> <code class="arduino">DHT11</code> (синия), защото е по-евтин.</label>
+                    <label class="block mb-2"><input type="radio" name="task1" value="b"> <code class="arduino">DHT22</code> (белия), защото обхватът му започва от -40°C.</label>
+                    <label class="block mb-2"><input type="radio" name="task1" value="c"> Няма значение, и двата стават.</label>
+                </div>
+                <button onclick="checkTask('task1', 'b')" class="mt-3 bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition-colors">Провери</button>
+                <div id="task1-feedback" class="mt-3 text-lg font-semibold"></div>
+            </div>
+        </section>
+
+        <!-- Урок 2: Свързване -->
+        <article class="bg-white p-8 rounded-xl shadow-lg mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">1. Свързване (The Wiring)</h3>
+            <p class="mb-4 text-lg">И двата сензора се свързват по един и същи начин. Те обикновено имат 3 или 4 "крачета" (пинове).</p>
+            <ul class="list-disc list-inside ml-4 mb-4 text-lg">
+                <li><strong>VCC (или +):</strong> Това е захранването. Свързваме го към <strong>5V</strong> (или 3.3V) на Arduino.</li>
+                <li><strong>GND (или -):</strong> Това е "земя". Свързваме го към <strong>GND</strong> на Arduino.</li>
+                <li><strong>DATA (или S, или Out):</strong> Това е сигналът. Свързваме го към произволен <strong>дигитален пин</strong> на Arduino (например пин 2).</li>
+                <li><strong>NC (Not Connected):</strong> Ако твоят сензор има 4-ти пин, той обикновено е "NC" - просто го игнорирай, не се свързва никъде.</li>
+            </ul>
+
+            <div class="flex justify-center my-6">
+                 
+            </div>
+
+            <div class="mt-6 bg-yellow-50 border border-yellow-300 p-4 rounded-lg text-yellow-800">
+                <strong class="font-semibold">Малко известен, но ВАЖЕН факт: Pull-up Резистор!</strong>
+                <p class="mt-2">Между пин <strong>VCC (5V)</strong> и пин <strong>DATA</strong> трябва да се свърже "дърпащ" (pull-up) резистор от около 4.7kΩ до 10kΩ. </p>
+                <p class="mt-2"><strong>Защо?</strong> Този резистор държи линията за данни "високо" (на 5V). Когато сензорът иска да "говори", той дърпа линията "ниско" (на 0V). Без този резистор, сигналът е несигурен и няма да работи.</p>
+                <p class="mt-2 font-semibold">Добрата новина:</strong> Повечето сензори, които се продават вече запоени на малка синя или червена платка (модул), <strong>ВЕЧЕ ИМАТ</strong> този резистор. Ако твоят сензор е на модул с 3 пина, на 99% си готов и не ти трябва резистор. Ако е "гол" с 4 пина, почти сигурно ще ти трябва!</p>
+            </div>
+
+             <!-- Мини задача 2 -->
+            <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg mt-6">
+                <h5 class="text-lg font-semibold mb-3">⚡ Мини-Задача 2:</h5>
+                <p class="mb-3">Към кой тип пин на Arduino свързваме изходния (DATA) пин на сензора?</p>
+                <div id="task2-options">
+                    <label class="block mb-2"><input type="radio" name="task2" value="a"> Към аналогов пин (A0, A1, ...)</label>
+                    <label class="block mb-2"><input type="radio" name="task2" value="b"> Към дигитален пин (2, 3, 4, ...)</label>
+                    <label class="block mb-2"><input type="radio" name="task2" value="c"> Към 5V пин</label>
+                </div>
+                <button onclick="checkTask('task2', 'b')" class="mt-3 bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition-colors">Провери</button>
+                <div id="task2-feedback" class="mt-3 text-lg font-semibold"></div>
+            </div>
+        </article>
+
+        <!-- Урок 3: Кодът -->
+        <article class="bg-white p-8 rounded-xl shadow-lg mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">2. Кодът (The Magic)</h3>
+            <p class="mb-4 text-lg">За да "говорим" с DHT сензорите, не е нужно да "крещим". Използваме <strong class="text-blue-600">библиотека</strong>. Това е пакет от предварително написан код, който върши сложната комуникация вместо нас.</p>
+            <p class="mb-4 text-lg">Ще използваме най-популярната: <code class="arduino">DHT sensor library</code> от Adafruit. Ще ти трябва и <code class="arduino">Adafruit Unified Sensor</code>. Можеш да ги инсталираш лесно от Library Manager-а в Arduino IDE.</p>
+            
+            <h4 class="text-xl font-semibold mt-6 mb-2">Примерен код за <code class="arduino">DHT11</code> (свързан на пин 2):</h4>
+            <pre><code class="arduino"><span class="preprocessor">#include &lt;Adafruit_Sensor.h&gt;</span>
+<span class="preprocessor">#include &lt;DHT.h&gt;</span>
+
+<span class="preprocessor">#define DHTPIN 2</span>     <span class="comment">// Към кой пин сме свързали DATA</span>
+<span class="preprocessor">#define DHTTYPE DHT11</span>  <span class="comment">// Указваме, че ползваме DHT11</span>
+<span class="comment">// Ако ползвахме DHT22, щяхме да напишем: #define DHTTYPE DHT22</span>
+
+<span class="comment">// Инициализираме (създаваме) обекта 'dht'</span>
+<span class="keyword">DHT</span> <span class="function">dht</span>(DHTPIN, DHTTYPE);
+
+<span class="keyword">void</span> <span class="function">setup</span>() {
+  <span class="function">Serial</span>.<span class="function">begin</span>(9600); <span class="comment">// Стартираме серийния монитор</span>
+  <span class="function">Serial</span>.<span class="function">println</span>(<span class="keyword">"DHT11 тест стартира!"</span>);
+
+  <span class="function">dht</span>.<span class="function">begin</span>(); <span class="comment">// Стартираме сензора</span>
+}
+
+<span class="keyword">void</span> <span class="function">loop</span>() {
+  <span class="comment">// Чакаме 2 секунди между измерванията.</span>
+  <span class="comment">// Това е ВАЖНО - DHT11 е бавен и не може да чете по-бързо!</span>
+  <span class="function">delay</span>(2000);
+
+  <span class="comment">// Опитваме да прочетем влажността</span>
+  <span class="keyword">float</span> h = <span class="function">dht</span>.<span class="function">readHumidity</span>();
+  <span class="comment">// Опитваме да прочетем температурата (в Целзий)</span>
+  <span class="keyword">float</span> t = <span class="function">dht</span>.<span class="function">readTemperature</span>();
+
+  <span class="comment">// Проверяваме дали нещо не се е объркало (напр. лоша връзка)</span>
+  <span class="keyword">if</span> (<span class="function">isnan</span>(h) || <span class="function">isnan</span>(t)) {
+    <span class="function">Serial</span>.<span class="function">println</span>(<span class="keyword">"Грешка при четене от DHT сензора!"</span>);
+    <span class="keyword">return</span>; <span class="comment">// Излизаме от loop() и опитваме пак след 2 сек.</span>
+  }
+
+  <span class="comment">// Ако всичко е наред, печатаме резултатите</span>
+  <span class="function">Serial</span>.<span class="function">print</span>(<span class="keyword">"Влажност: "</span>);
+  <span class="function">Serial</span>.<span class="function">print</span>(h);
+  <span class="function">Serial</span>.<span class="function">print</span>(<span class="keyword">" % \t"</span>); <span class="comment">// \t е табулация (разстояние)</span>
+  <span class="function">Serial</span>.<span class="function">print</span>(<span class="keyword">"Температура: "</span>);
+  <span class="function">Serial</span>.<span class="function">print</span>(t);
+  <span class="function">Serial</span>.<span class="function">println</span>(<span class="keyword">" °C"</span>);
+}</code></pre>
+
+            <details>
+                <summary>Обяснение ред по ред</summary>
+                <ul class="list-disc list-inside ml-4 mt-2 text-md space-y-2">
+                    <li><code class="arduino">#include &lt;DHT.h&gt;</code>: Казваме на Arduino "Хей, ще използваме 'речника' за говорене с DHT сензори."</li>
+                    <li><code class="arduino">#define DHTPIN 2</code>: Това е като да си кръстим пин 2 с по-лесно име. Вместо да пишем '2' навсякъде, пишем <code class="arduino">DHTPIN</code>. Ако решим да сменим пина на '3', променяме го само тук.</li>
+                    <li><code class="arduino">#define DHTTYPE DHT11</code>: Казваме на библиотеката кой "братовчед" ползваме. Тя трябва да знае, защото те "говорят" малко по-различно.</li>
+                    <li><code class="arduino">DHT dht(DHTPIN, DHTTYPE);</code>: Това е най-абстрактната част. Казваме "Създай ми един 'работник' на име 'dht', който знае, че ще си говори с пин 2 и че там го чака DHT11."</li>
+                    <li><code class="arduino">void setup() { ... }</code>: Това е секцията за "Еднократна настройка". Изпълнява се само веднъж, когато включим Arduino-то.</li>
+                    <li><code class="arduino">Serial.begin(9600);</code>: Стартира комуникацията с компютъра ти, за да можеш да виждаш съобщенията в Серийния Монитор. "9600" е скоростта на говорене (baud rate).</li>
+                    <li><code class="arduino">dht.begin();</code>: Казваме на нашия 'работник' 'dht' да се "подготви за работа" – да се свърже със сензора.</li>
+                    <li><code class="arduino">void loop() { ... }</code>: Това е "Безкрайният цикъл". Когато стигне края, се връща в началото. Отново, и отново, и отново...</li>
+                    <li><code class="arduino">delay(2000);</code>: <strong>КРИТИЧНО!</strong> Казваме на Arduino "Почивай 2000 милисекунди (2 секунди)". DHT11 е бавен. Ако го питаме "Колко е часът?" 100 пъти в секунда, той ще се обърка и ще спре да отговаря. DHT22 е малко по-бърз, но пак му трябват 2 секунди.</li>
+                    <li><code class="arduino">float h = dht.readHumidity();</code>: Питаме 'dht' "Каква е влажността?" и записваме отговора в "кутийка" (променлива) 'h'. 'float' означава, че числото може да има десетична запетая (напр. 45.2).</li>
+                    <li><code class="arduino">if (isnan(h) ... )</code>: Това е "Проверка за глупости". <code class="arduino">isnan</code> означава "Is Not a Number?" (Това НЕ-число ли е?). Понякога четенето се проваля и сензорът връща невалидна стойност (NaN). С тази проверка казваме "Ако влажността ИЛИ температурата са не-число, значи има проблем. Отпечатай грешка и не прави нищо друго този път."</li>
+                    <li><code class="arduino">Serial.print(h);</code>: Печата стойността от "кутийка" 'h' в Серийния Монитор.</li>
+                </ul>
+            </details>
+
+            <!-- Мини задача 3 -->
+            <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg mt-6">
+                <h5 class="text-lg font-semibold mb-3">⚡ Мини-Задача 3:</h5>
+                <p class="mb-3">Купил си си по-точния <strong>бял</strong> сензор (<code class="arduino">DHT22</code>) и искаш да използваш горния код. Кой ред <strong>трябва</strong> да промениш?</p>
+                <div id="task3-options">
+                    <label class="block mb-2"><input type="radio" name="task3" value="a"> <code class="arduino">#define DHTPIN 2</code></label>
+                    <label class="block mb-2"><input type="radio" name="task3" value="b"> <code class="arduino">#define DHTTYPE DHT11</code></label>
+                    <label class="block mb-2"><input type="radio" name="task3" value="c"> <code class="arduino">Serial.begin(9600);</code></label>
+                </div>
+                <button onclick="checkTask('task3', 'b')" class="mt-3 bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition-colors">Провери</button>
+                <div id="task3-feedback" class="mt-3 text-lg font-semibold"></div>
+                <small class="text-gray-600 mt-2 block">Подсказка: Трябва да промениш реда, който казва на библиотеката какъв е типът на сензора.</small>
+            </div>
+        </article>
+
+        <!-- Урок 4: Факти и Проблеми -->
+        <article class="bg-white p-8 rounded-xl shadow-lg mb-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">3. Факти, Хитрини и Проблеми</h3>
+            
+            <div class="mt-6 bg-yellow-50 border border-yellow-300 p-4 rounded-lg text-yellow-800">
+                <strong class="font-semibold">Забавен факт: Как мери влажност?</strong>
+                <p class="mt-2">Сензорът за влажност (в повечето DHT) е "капацитивен". Вътре има две метални плочки с тънък слой специален полимер между тях, който абсорбира влага. Колкото повече влага абсорбира, толкова повече се променя електрическият "капацитет" между плочките. Малкият чип измерва тази промяна и я превръща в % влажност. </p>
+                <p class="mt-2">Това е и причината да са <strong class="text-yellow-900">бавни</strong> – отнема време полимерът да "поеме" или "пусне" влагата, за да отрази новата стойност!</p>
+            </div>
+
+            <h4 class="text-xl font-semibold mt-8 mb-2">Често срещани проблеми:</h4>
+            <ul class="list-disc list-inside ml-4 mt-4 text-lg space-y-2">
+                <li>
+                    <strong>Проблем:</strong> В серийния монитор ми излиза само <code class="arduino">"Грешка при четене..."</code> или <code class="arduino">"NaN"</code>.
+                </li>
+                <li>
+                    <strong>Решения:</strong>
+                    <ol class="list-decimal list-inside ml-6 mt-1 text-md">
+                        <li>Провери си кабелите! Това е проблемът в 90% от случаите. (VCC към 5V, GND към GND, Data към пин 2).</li>
+                        <li>Забравил си <strong>pull-up резистора</strong> (ако сензорът ти е "гол" с 4 пина).</li>
+                        <li>Грешен тип сензор. Провери дали в кода пише <code class="arduino">DHT11</code>, а ти ползваш <code class="arduino">DHT11</code> (син), а не <code class="arduino">DHT22</code> (бял).</li>
+                    </ol>
+                </li>
+                <li>
+                    <strong>Проблем:</strong> Стойностите се променят много бавно.
+                </li>
+                <li>
+                    <strong>Решение:</strong> Това не е проблем, това е нормално! Както видяхме, сензорът е физически бавен. Не го карай да чете по-бързо от веднъж на 2 секунди (<code class="arduino">delay(2000)</code>).</li>
+            </ul>
+
+            <!-- Мини задача 4 -->
+            <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg mt-6">
+                <h5 class="text-lg font-semibold mb-3">⚡ Мини-Задача 4:</h5>
+                <p class="mb-3">Кодът ти работи, но искаш да получаваш данни <strong>два пъти по-бързо</strong>, затова променяш <code class="arduino">delay(2000)</code> на <code class="arduino">delay(50)</code>. Какво най-вероятно ще се случи?</p>
+                <div id="task4-options">
+                    <label class="block mb-2"><input type="radio" name="task4" value="a"> Ще получавам 20 пъти по-точни данни!</label>
+                    <label class="block mb-2"><input type="radio" name="task4" value="b"> Всичко ще спре да работи и ще започна да получавам <code class="arduino">NaN</code> или грешки.</label>
+                    <label class="block mb-2"><input type="radio" name="task4" value="c"> Няма да има никаква разлика.</label>
+                </div>
+                <button onclick="checkTask('task4', 'b')" class="mt-3 bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition-colors">Провери</button>
+                <div id="task4-feedback" class="mt-3 text-lg font-semibold"></div>
+                <small class="text-gray-600 mt-2 block">Подсказка: Сензорът има нужда от почивка между измерванията.</small>
+            </div>
+        </article>
+<!-- Next Lesson Button -->
+            <div class="text-center mt-12">
+                <a href="#" class="inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform transform hover:scale-105">
+                    Към следващия урок &rarr;
+                </a>
+            </div>
+    </div>
+
+    <!-- Футър -->
+    <footer class="text-center p-6 text-gray-600">
+        <p>инж. Пламена Янева</p>
+    </footer>
+
+    <!-- JavaScript за интерактивните задачи -->
+    <script>
+        function checkTask(taskId, correctAnswer) {
+            const options = document.getElementsByName(taskId);
+            const feedbackEl = document.getElementById(taskId + '-feedback');
+            let selectedValue = null;
+
+            for (const option of options) {
+                if (option.checked) {
+                    selectedValue = option.value;
+                    break;
+                }
+            }
+
+            if (selectedValue === null) {
+                feedbackEl.textContent = 'Моля, изберете отговор.';
+                feedbackEl.className = 'mt-3 text-lg font-semibold text-yellow-700';
+            } else if (selectedValue === correctAnswer) {
+                feedbackEl.textContent = '✅ Правилно! Страхотна работа!';
+                feedbackEl.className = 'mt-3 text-lg font-semibold text-green-700';
+            } else {
+                feedbackEl.textContent = '❌ Грешка, опитай пак. Помисли още малко!';
+                feedbackEl.className = 'mt-3 text-lg font-semibold text-red-700';
+            }
+        }
+    </script>
+
+</body>
+</html>

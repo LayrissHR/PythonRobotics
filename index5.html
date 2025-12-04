@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="bg">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Python Урок: Функции (def) - Masterclass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Theme: Python Colors (Blue/Yellow) + Clean Light Mode -->
+    <!-- Primary: #306998 (Python Blue) -->
+    <!-- Secondary: #FFD43B (Python Yellow) -->
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f8fafc;
+        color: #1e293b;
+      }
+      .code-font {
+        font-family: "Fira Code", monospace;
+      }
+
+      .python-keyword {
+        color: #cc7832;
+        font-weight: bold;
+      } /* def, return, if */
+      .python-func {
+        color: #ffc66d;
+      } /* function names */
+      .python-string {
+        color: #6a8759;
+      } /* strings */
+      .python-num {
+        color: #6897bb;
+      } /* numbers */
+      .python-comment {
+        color: #808080;
+        font-style: italic;
+      } /* comments */
+      .python-decorator {
+        color: #bbb529;
+      } /* decorators/args */
+
+      .machine-box {
+        transition: all 0.3s ease;
+      }
+      .machine-active {
+        animation: pulse-border 1s infinite;
+      }
+
+      @keyframes pulse-border {
+        0% {
+          box-shadow: 0 0 0 0px rgba(255, 212, 59, 0.7);
+        }
+        100% {
+          box-shadow: 0 0 0 15px rgba(255, 212, 59, 0);
+        }
+      }
+
+      @keyframes slide-down {
+        from {
+          transform: translateY(-20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      .item-drop {
+        animation: slide-down 0.5s ease-out;
+      }
+
+      .section-title {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+      }
+      .section-title::after {
+        content: "";
+        display: block;
+        width: 100%;
+        height: 4px;
+        background: #ffd43b;
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        border-radius: 2px;
+      }
+    </style>
+  </head>
+  <body class="flex flex-col min-h-screen">
+    <!-- Header -->
+    <header
+      class="bg-[#306998] text-white shadow-lg p-4 sticky top-0 z-50 border-b-4 border-[#FFD43B]"
+    >
+      <div
+        class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4"
+      >
+        <h1 class="text-2xl font-bold flex items-center gap-2">
+          <i class="fab fa-python text-[#FFD43B]"></i> Python Masterclass:
+          Функции
+        </h1>
+        <nav class="flex flex-wrap gap-4 text-sm font-medium justify-center">
+          <button
+            onclick="scrollToSec('concept')"
+            class="hover:text-[#FFD43B] transition"
+          >
+            Концепция
+          </button>
+          <button
+            onclick="scrollToSec('syntax')"
+            class="hover:text-[#FFD43B] transition"
+          >
+            Синтаксис & Аргументи
+          </button>
+          <button
+            onclick="scrollToSec('scope')"
+            class="hover:text-[#FFD43B] transition"
+          >
+            Обхват (Scope)
+          </button>
+          <button
+            onclick="scrollToSec('return-vs-print')"
+            class="hover:text-[#FFD43B] transition"
+          >
+            Return vs Print
+          </button>
+          <button
+            onclick="scrollToSec('advanced')"
+            class="hover:text-[#FFD43B] transition"
+          >
+            Advanced (*args)
+          </button>
+          <button
+            onclick="scrollToSec('dojo')"
+            class="hover:text-[#FFD43B] transition"
+          >
+            Упражнение
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="flex-grow max-w-6xl mx-auto w-full p-6 space-y-16">
+      <!-- SECTION 1: CONCEPTUAL ANALOGY & THEORY -->
+      <section id="concept" class="scroll-mt-32">
+        <div class="bg-white p-8 rounded-xl shadow-lg border border-slate-200">
+          <h2 class="text-3xl font-bold text-slate-800 section-title">
+            1. Теория и Концепция
+          </h2>
+
+          <div class="mb-8">
+            <h3 class="text-xl font-bold text-[#306998] mb-2">
+              Какво е функция? (Дефиниция)
+            </h3>
+            <p class="text-slate-700 leading-relaxed mb-4">
+              Функцията е именуван блок от код, който е проектиран да изпълнява
+              конкретна задача. Тя следва принципа
+              <strong>DRY (Don't Repeat Yourself)</strong> - "Не се повтаряй".
+              Вместо да копирате един и същ код 10 пъти, вие го дефинирате
+              веднъж във функция и я "извиквате" 10 пъти.
+            </p>
+            <div class="flex gap-4 flex-wrap">
+              <span
+                class="bg-blue-50 text-blue-800 px-3 py-1 rounded-full text-sm font-bold border border-blue-200"
+                >Модулност</span
+              >
+              <span
+                class="bg-blue-50 text-blue-800 px-3 py-1 rounded-full text-sm font-bold border border-blue-200"
+                >Абстракция</span
+              >
+              <span
+                class="bg-blue-50 text-blue-800 px-3 py-1 rounded-full text-sm font-bold border border-blue-200"
+                >Преизползваемост</span
+              >
+            </div>
+          </div>
+
+          <div
+            class="grid md:grid-cols-2 gap-10 items-center bg-slate-50 p-6 rounded-xl border border-slate-200"
+          >
+            <div>
+              <h4 class="font-bold text-lg mb-4 text-slate-700">
+                Аналогия: Машина за сок
+              </h4>
+              <ul class="space-y-4 text-slate-700">
+                <li class="flex items-start gap-3">
+                  <span class="bg-blue-100 p-2 rounded text-blue-600 mt-1"
+                    ><i class="fas fa-sign-in-alt"></i
+                  ></span>
+                  <div>
+                    <strong>Параметри (Parameters):</strong>
+                    Това са "слотовете" на машината. В дефиницията
+                    <code>def make_juice(fruit)</code>, <code>fruit</code> е
+                    параметър (променлива-контейнер).
+                  </div>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="bg-purple-100 p-2 rounded text-purple-600 mt-1"
+                    ><i class="fas fa-cube"></i
+                  ></span>
+                  <div>
+                    <strong>Аргументи (Arguments):</strong>
+                    Това са конкретните стойности, които подавате при извикване.
+                    Когато напишете <code>make_juice("Ябълка")</code>, низът
+                    "Ябълка" е аргументът.
+                  </div>
+                </li>
+                <li class="flex items-start gap-3">
+                  <span class="bg-green-100 p-2 rounded text-green-600 mt-1"
+                    ><i class="fas fa-sign-out-alt"></i
+                  ></span>
+                  <div>
+                    <strong>Return (Output):</strong>
+                    Продуктът, който функцията връща на програмата. Ако няма
+                    <code>return</code>, функцията връща специалната стойност
+                    <code>None</code>.
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Interactive Visualizer -->
+            <div
+              class="bg-white p-6 rounded-xl border-2 border-dashed border-slate-300 text-center relative shadow-sm"
+            >
+              <h3 class="font-bold text-slate-500 mb-4 text-sm uppercase">
+                Симулатор на функция
+              </h3>
+
+              <!-- Inputs -->
+              <div class="flex justify-center gap-2 mb-2">
+                <button
+                  onclick="addIngredient('🍎')"
+                  class="text-2xl hover:scale-110 transition p-2 bg-slate-100 rounded shadow"
+                >
+                  🍎
+                </button>
+                <button
+                  onclick="addIngredient('🍌')"
+                  class="text-2xl hover:scale-110 transition p-2 bg-slate-100 rounded shadow"
+                >
+                  🍌
+                </button>
+                <button
+                  onclick="addIngredient('🍓')"
+                  class="text-2xl hover:scale-110 transition p-2 bg-slate-100 rounded shadow"
+                >
+                  🍓
+                </button>
+              </div>
+              <div id="blender-input" class="h-8 text-sm text-gray-500 mb-2">
+                Аргументи: (празно)
+              </div>
+
+              <!-- The Machine -->
+              <div
+                id="machine"
+                class="machine-box w-32 h-32 bg-gray-800 mx-auto rounded-lg flex items-center justify-center text-4xl text-white shadow-xl relative z-10 border-4 border-gray-600"
+              >
+                <i class="fas fa-blender"></i>
+              </div>
+              <div class="text-xs text-gray-400 mt-1 font-mono">
+                def make_juice(*ingredients):
+              </div>
+
+              <!-- Output -->
+              <div class="mt-4">
+                <button
+                  onclick="runMachine()"
+                  class="bg-[#306998] text-white px-6 py-2 rounded-full font-bold hover:bg-[#204a6e] transition shadow-lg text-sm"
+                >
+                  RETURN result
+                </button>
+              </div>
+              <div
+                id="machine-output"
+                class="mt-4 h-12 flex items-center justify-center text-xl font-bold text-green-600"
+              >
+                <!-- Output appears here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: SYNTAX & ARGUMENTS -->
+      <section id="syntax" class="scroll-mt-32">
+        <h2 class="text-3xl font-bold mb-6 text-slate-800 section-title">
+          2. Синтаксис и Видове Аргументи
+        </h2>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+          <!-- Basic Syntax -->
+          <div
+            class="bg-[#1e1e1e] p-6 rounded-xl shadow-xl overflow-x-auto relative group border-l-4 border-[#FFD43B]"
+          >
+            <h3 class="text-[#FFD43B] font-bold mb-4 flex items-center gap-2">
+              <i class="fas fa-code"></i> Основна Структура
+            </h3>
+            <div class="code-font text-sm leading-loose">
+              <div>
+                <span class="python-keyword">def</span>
+                <span class="python-func">greet_user</span>(<span
+                  class="python-string"
+                  >name</span
+                >, <span class="python-string">mood</span>=<span
+                  class="python-string"
+                  >"Happy"</span
+                >):
+              </div>
+              <div class="pl-8 border-l-2 border-gray-700 ml-1">
+                <span class="python-comment"
+                  ># name е задължителен параметър</span
+                ><br />
+                <span class="python-comment"
+                  ># mood е параметър по подразбиране (Default)</span
+                ><br />
+                msg =
+                <span class="python-string"
+                  >f"Hello {name}, you look {mood}!"</span
+                ><br />
+                <span class="python-keyword">return</span> msg
+              </div>
+              <br />
+              <div>
+                <span class="python-comment"
+                  ># 1. Позиционни аргументи (Positional)</span
+                ><br />
+                res1 = <span class="python-func">greet_user</span>(<span
+                  class="python-string"
+                  >"Alex"</span
+                >, <span class="python-string">"Sad"</span>)<br /><br />
+
+                <span class="python-comment"
+                  ># 2. Именовани аргументи (Keyword)</span
+                ><br />
+                res2 = <span class="python-func">greet_user</span>(<span
+                  class="python-string"
+                  >mood</span
+                >=<span class="python-string">"Excited"</span>,
+                <span class="python-string">name</span>=<span
+                  class="python-string"
+                  >"Maria"</span
+                >)<br /><br />
+
+                <span class="python-comment"
+                  ># 3. Използване на Default стойност</span
+                ><br />
+                res3 = <span class="python-func">greet_user</span>(<span
+                  class="python-string"
+                  >"Ivan"</span
+                >) <span class="python-comment"># mood става "Happy"</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Terminology Card -->
+          <div class="space-y-4">
+            <div
+              class="bg-white p-5 rounded-lg shadow border-l-4 border-blue-500"
+            >
+              <h4 class="font-bold text-slate-800">
+                Позиционни Аргументи (Positional)
+              </h4>
+              <p class="text-sm text-slate-600 mt-1">
+                Редът има значение. Първият аргумент отива в първия параметър.
+                <code>func(10, 20)</code>
+              </p>
+            </div>
+            <div
+              class="bg-white p-5 rounded-lg shadow border-l-4 border-purple-500"
+            >
+              <h4 class="font-bold text-slate-800">
+                Именовани Аргументи (Keyword Arguments)
+              </h4>
+              <p class="text-sm text-slate-600 mt-1">
+                Изрично посочвате кой параметър коя стойност приема. Редът няма
+                значение. <code>func(b=20, a=10)</code>
+              </p>
+            </div>
+            <div
+              class="bg-white p-5 rounded-lg shadow border-l-4 border-green-500"
+            >
+              <h4 class="font-bold text-slate-800">
+                Аргументи по подразбиране (Default)
+              </h4>
+              <p class="text-sm text-slate-600 mt-1">
+                Ако не подадете стойност при извикване, функцията използва
+                предварително зададена такава. <code>def func(a=5):</code>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: SCOPE (NEW) -->
+      <section id="scope" class="scroll-mt-32">
+        <h2 class="text-3xl font-bold mb-6 text-slate-800 section-title">
+          3. Обхват на променливите (Scope)
+        </h2>
+        <div class="bg-slate-50 p-8 rounded-xl border border-slate-200">
+          <p class="mb-6 text-slate-700">
+            Променливите не са видими навсякъде. Обхватът определя къде можете
+            да използвате дадена променлива.
+            <br /><strong>Златно правило:</strong> Каквото се случи във
+            функцията, си остава във функцията (освен ако не го върнете с
+            <code>return</code>).
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-8">
+            <!-- Visualization of Scope -->
+            <div
+              class="relative bg-white p-6 rounded-lg shadow-inner border border-gray-300"
+            >
+              <div
+                class="absolute top-2 left-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded font-bold"
+              >
+                Global Scope (Цялата програма)
+              </div>
+              <div class="mt-8 mb-4 font-mono text-sm text-blue-800">
+                global_var = "Аз съм видим навсякъде"
+              </div>
+
+              <!-- Local Scope Box -->
+              <div
+                class="bg-yellow-50 border-2 border-yellow-400 p-4 rounded-lg relative mt-4 mx-4"
+              >
+                <div
+                  class="absolute -top-3 left-4 bg-yellow-400 text-yellow-900 text-xs px-2 py-1 rounded font-bold"
+                >
+                  Local Scope (Вътре във функция)
+                </div>
+                <div class="mt-2 font-mono text-sm text-yellow-900">
+                  def my_function():<br />
+                  &nbsp;&nbsp;local_var = "Аз живея само тук"<br />
+                  &nbsp;&nbsp;print(global_var)
+                  <span class="text-green-600">✓ OK</span>
+                </div>
+              </div>
+
+              <div class="mt-4 font-mono text-sm text-red-600">
+                print(local_var)
+                <span class="font-bold">❌ ERROR! (NameError)</span>
+              </div>
+            </div>
+
+            <!-- Code Example -->
+            <div class="bg-[#1e1e1e] p-6 rounded-lg shadow text-sm">
+              <div class="code-font leading-relaxed">
+                <span class="python-keyword">x</span> =
+                <span class="python-num">100</span>
+                <span class="python-comment"># Global variable</span
+                ><br /><br />
+
+                <span class="python-keyword">def</span>
+                <span class="python-func">change_x</span>():<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="python-keyword">x</span> =
+                <span class="python-num">50</span>
+                <span class="python-comment"># Local variable (Shadowing)</span
+                ><br />
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="python-func">print</span
+                >(<span class="python-string">f"Inside: {x}"</span>)<br /><br />
+
+                <span class="python-func">change_x</span>()
+                <span class="python-comment"># Prints 50</span><br />
+                <span class="python-func">print</span>(<span
+                  class="python-string"
+                  >f"Outside: {x}"</span
+                >)
+                <span class="python-comment"># Prints 100 (Непроменена!)</span>
+              </div>
+              <div class="mt-4 p-3 bg-gray-700 rounded text-gray-300 text-xs">
+                <i class="fas fa-info-circle text-[#FFD43B]"></i> Ако искате да
+                промените глобална променлива вътре във функция, трябва да
+                използвате ключовата дума
+                <code class="text-[#FFD43B]">global x</code>.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: RETURN VS PRINT -->
+      <section
+        id="return-vs-print"
+        class="scroll-mt-32 bg-yellow-50 p-8 rounded-xl border border-yellow-200"
+      >
+        <div class="flex items-center gap-3 mb-4">
+          <i class="fas fa-balance-scale text-yellow-600 text-2xl"></i>
+          <h2 class="text-3xl font-bold text-slate-800">
+            4. Return срещу Print
+          </h2>
+        </div>
+        <p class="mb-6 text-slate-700">
+          Това е най-честата грешка на начинаещите.
+          <br />
+          <strong>Print</strong> е като да покажеш снимка на храната на клиента.
+          Той я вижда, но не може да я изяде.
+          <br />
+          <strong>Return</strong> е като да сервираш храната на клиента. Той
+          може да я изяде, да я опакова за вкъщи (запази в променлива) или да я
+          даде на някой друг.
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-8">
+          <!-- Print Example -->
+          <div
+            class="bg-white p-4 rounded-lg shadow border-t-4 border-gray-500"
+          >
+            <h3 class="font-bold text-gray-700 mb-2 border-b pb-1">
+              Използване на <span class="python-func">print()</span>
+            </h3>
+            <pre class="bg-gray-100 p-2 rounded text-xs code-font mb-2">
+def add_print(a, b):
+    sum = a + b
+    print(sum) <span class="text-gray-400"># Само показва на конзолата</span>
+
+x = add_print(2, 3)
+<span class="text-red-500"># x е None (нищо)!</span>
+<span class="text-red-500"># Не можеш да направиш: x + 10</span>
+</pre>
+            <button
+              onclick="runDemo('print')"
+              class="w-full bg-gray-600 text-white py-1 rounded text-sm hover:bg-gray-700"
+            >
+              Тествай
+            </button>
+            <div
+              id="out-print"
+              class="mt-2 min-h-[40px] text-xs font-mono bg-black text-white p-2 rounded"
+            >
+              Console:
+            </div>
+            <div
+              id="var-print"
+              class="mt-1 text-xs font-mono bg-blue-50 text-blue-800 p-2 rounded border border-blue-200"
+            >
+              Variable x: ?
+            </div>
+          </div>
+
+          <!-- Return Example -->
+          <div
+            class="bg-white p-4 rounded-lg shadow border-t-4 border-green-500"
+          >
+            <h3 class="font-bold text-green-700 mb-2 border-b pb-1">
+              Използване на <span class="python-keyword">return</span>
+            </h3>
+            <pre class="bg-gray-100 p-2 rounded text-xs code-font mb-2">
+def add_return(a, b):
+    sum = a + b
+    return sum <span class="text-gray-400"># Връща данни на програмата</span>
+
+x = add_return(2, 3)
+<span class="text-green-600"># x е 5!</span>
+<span class="text-green-600"># Можеш да направиш: y = x + 10 (y става 15)</span>
+</pre>
+            <button
+              onclick="runDemo('return')"
+              class="w-full bg-green-600 text-white py-1 rounded text-sm hover:bg-green-700"
+            >
+              Тествай
+            </button>
+            <div
+              id="out-return"
+              class="mt-2 min-h-[40px] text-xs font-mono bg-black text-white p-2 rounded"
+            >
+              Console: (Silent)
+            </div>
+            <div
+              id="var-return"
+              class="mt-1 text-xs font-mono bg-blue-50 text-blue-800 p-2 rounded border border-blue-200"
+            >
+              Variable x: ?
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 5: ADVANCED CONCEPTS (NEW) -->
+      <section id="advanced" class="scroll-mt-32">
+        <h2 class="text-3xl font-bold mb-6 text-slate-800 section-title">
+          5. Напреднали Концепции
+        </h2>
+
+        <div class="grid md:grid-cols-3 gap-6">
+          <!-- *args -->
+          <div
+            class="bg-white p-6 rounded-xl shadow border border-slate-200 hover:shadow-lg transition"
+          >
+            <h3 class="font-bold text-purple-700 mb-2 text-lg">
+              *args (Variable Arguments)
+            </h3>
+            <p class="text-sm text-slate-600 mb-3">
+              Позволява на функцията да приема
+              <strong>неограничен брой</strong> позиционни аргументи. Те се
+              събират в <strong>tuple</strong> (кортеж).
+            </p>
+            <div
+              class="bg-gray-100 p-2 rounded text-xs code-font text-slate-800"
+            >
+              <span class="python-keyword">def</span>
+              <span class="python-func">sum_all</span>(<span
+                class="python-decorator"
+                >*nums</span
+              >):<br />
+              &nbsp;&nbsp;<span class="python-keyword">return</span>
+              <span class="python-func">sum</span>(nums)<br /><br />
+              <span class="python-func">sum_all</span>(1, 2, 3, 4, 5)
+              <span class="python-comment"># 15</span>
+            </div>
+          </div>
+
+          <!-- **kwargs -->
+          <div
+            class="bg-white p-6 rounded-xl shadow border border-slate-200 hover:shadow-lg transition"
+          >
+            <h3 class="font-bold text-blue-700 mb-2 text-lg">
+              **kwargs (Keyword Arguments)
+            </h3>
+            <p class="text-sm text-slate-600 mb-3">
+              Позволява приемането на неограничен брой именовани аргументи. Те
+              се събират в <strong>dictionary</strong> (речник).
+            </p>
+            <div
+              class="bg-gray-100 p-2 rounded text-xs code-font text-slate-800"
+            >
+              <span class="python-keyword">def</span>
+              <span class="python-func">print_data</span>(<span
+                class="python-decorator"
+                >**info</span
+              >):<br />
+              &nbsp;&nbsp;<span class="python-func">print</span
+              >(info)<br /><br />
+              <span class="python-func">print_data</span>(name=<span
+                class="python-string"
+                >"Ivo"</span
+              >, age=<span class="python-num">25</span>)<br />
+              <span class="python-comment"># {'name': 'Ivo', 'age': 25}</span>
+            </div>
+          </div>
+
+          <!-- Docstrings -->
+          <div
+            class="bg-white p-6 rounded-xl shadow border border-slate-200 hover:shadow-lg transition"
+          >
+            <h3 class="font-bold text-green-700 mb-2 text-lg">
+              Docstrings (Документация)
+            </h3>
+            <p class="text-sm text-slate-600 mb-3">
+              Текст, описващ какво прави функцията. Пише се веднага след
+              дефиницията в тройни кавички.
+            </p>
+            <div
+              class="bg-gray-100 p-2 rounded text-xs code-font text-slate-800"
+            >
+              <span class="python-keyword">def</span>
+              <span class="python-func">calc</span>(a, b):<br />
+              &nbsp;&nbsp;<span class="python-string"
+                >""" Събира две числа. """</span
+              ><br />
+              &nbsp;&nbsp;<span class="python-keyword">return</span> a + b
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 6: CODE DOJO -->
+      <section id="dojo" class="scroll-mt-32">
+        <h2 class="text-3xl font-bold mb-6 text-slate-800 section-title">
+          6. Code Dojo: Практика
+        </h2>
+
+        <div class="bg-slate-800 text-white p-6 rounded-xl shadow-2xl relative">
+          <div class="mb-4">
+            <h3 class="text-xl font-bold text-[#FFD43B]">
+              <i class="fas fa-laptop-code"></i> Задача: Калкулатор за площ
+            </h3>
+            <p class="text-gray-300 text-sm mt-2 leading-relaxed">
+              1. Дефинирайте функция <code>calc_area</code> с параметри
+              <code>width</code> и <code>height</code>.<br />
+              2. Направете <code>height</code> да има
+              <strong>стойност по подразбиране 10</strong>.<br />
+              3. Функцията трябва да <strong>върне (return)</strong> резултата
+              (width * height).
+            </p>
+          </div>
+
+          <!-- Fake Editor -->
+          <div class="relative">
+            <div
+              class="absolute left-0 top-0 bottom-0 w-8 bg-slate-900 text-gray-600 text-right pr-2 pt-2 text-sm font-mono border-r border-slate-700 select-none"
+            >
+              1<br />2<br />3<br />4
+            </div>
+            <textarea
+              id="code-editor"
+              class="w-full h-32 bg-[#1e1e1e] text-[#d4d4d4] code-font pl-10 p-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 rounded"
+              spellcheck="false"
+            >
+# Дефинирайте функцията тук
+def calc_area(width, height):
+    return width * height
+</textarea
+            >
+          </div>
+
+          <div class="mt-4 flex justify-between items-center">
+            <div
+              id="dojo-feedback"
+              class="text-sm font-bold animate-pulse"
+            ></div>
+            <button
+              onclick="checkCode()"
+              class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded shadow transition flex items-center gap-2"
+            >
+              <i class="fas fa-play"></i> Провери кода
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer
+      class="bg-slate-900 text-slate-500 py-8 text-center mt-auto border-t border-slate-700"
+    >
+      <p>Python Learning Simulator &copy; 2023 | Version 2.0 Extended</p>
+    </footer>
+
+    <!-- LOGIC -->
+    <script>
+      // --- Navigation ---
+      function scrollToSec(id) {
+        document.getElementById(id).scrollIntoView({ behavior: "smooth" });
+      }
+
+      // --- Visualizer Logic ---
+      let ingredients = [];
+
+      function addIngredient(icon) {
+        if (ingredients.length < 5) {
+          ingredients.push(icon);
+          updateBlenderDisplay();
+        }
+      }
+
+      function updateBlenderDisplay() {
+        const display = document.getElementById("blender-input");
+        if (ingredients.length === 0) {
+          display.innerText = "Аргументи: (празно)";
+        } else {
+          display.innerHTML = `Аргументи: <span class="text-lg bg-white px-2 py-1 rounded shadow text-slate-800">${ingredients.join(
+            ", "
+          )}</span>`;
+        }
+      }
+
+      function runMachine() {
+        if (ingredients.length === 0) {
+          alert("Машината е празна! Трябва да подадете поне един аргумент.");
+          return;
+        }
+
+        const machine = document.getElementById("machine");
+        const output = document.getElementById("machine-output");
+
+        // Animation
+        machine.classList.add("machine-active");
+        output.innerHTML =
+          '<i class="fas fa-cog fa-spin text-gray-400"></i> Изчисляване...';
+
+        setTimeout(() => {
+          machine.classList.remove("machine-active");
+
+          // Logic based on input
+          let result = "🥤 Смути";
+
+          // Demo logic for simulator
+          if (ingredients.includes("🍎") && ingredients.length === 1)
+            result = "🧃 Ябълков сок";
+          else if (ingredients.includes("🍌") && ingredients.length === 1)
+            result = "🥛 Бананов шейк";
+          else if (ingredients.length > 2) result = "🍹 Мега Микс";
+
+          output.innerHTML = `<div class="flex flex-col items-center"><span class="text-xs text-gray-400 mb-1">RETURN VALUE</span><span class="item-drop text-2xl border-2 border-green-500 px-4 py-2 rounded-full bg-green-50 shadow-md">${result}</span></div>`;
+
+          // Reset for next run
+          ingredients = [];
+          setTimeout(updateBlenderDisplay, 2000);
+        }, 1200);
+      }
+
+      // --- Return vs Print Logic ---
+      function runDemo(type) {
+        if (type === "print") {
+          document.getElementById("out-print").innerText = "Console: 5";
+          document.getElementById("var-print").innerHTML =
+            "Variable x: <span class='text-red-600 font-bold'>None</span>";
+        } else {
+          document.getElementById("out-return").innerText = "Console: ";
+          document.getElementById("var-return").innerHTML =
+            "Variable x: <span class='text-green-600 font-bold'>5</span>";
+        }
+      }
+
+      // --- Code Dojo Logic ---
+      function checkCode() {
+        const code = document.getElementById("code-editor").value;
+        const feedback = document.getElementById("dojo-feedback");
+
+        const hasDef = code.includes("def calc_area");
+        const hasReturn = code.includes("return");
+        const hasDefault = code.includes("=") || code.includes("10"); // Basic check for default val
+        const hasMath = code.includes("*");
+
+        if (!hasDef) {
+          feedback.innerHTML =
+            "<span class='text-red-400'><i class='fas fa-times'></i> Липсва дефиницията 'def calc_area'.</span>";
+          return;
+        }
+
+        if (!hasDefault) {
+          feedback.innerHTML =
+            "<span class='text-orange-400'><i class='fas fa-exclamation-triangle'></i> Забрави параметъра по подразбиране (height=10).</span>";
+          return;
+        }
+
+        if (!hasMath) {
+          feedback.innerHTML =
+            "<span class='text-orange-400'>Съвет: Умножи width * height.</span>";
+          return;
+        }
+
+        if (!hasReturn) {
+          feedback.innerHTML =
+            "<span class='text-red-400'>Грешка: Липсва 'return'. Резултатът се губи!</span>";
+          return;
+        }
+
+        // If simple checks pass
+        feedback.innerHTML =
+          "<span class='text-green-400 text-lg'><i class='fas fa-check-circle'></i> Браво! Кодът е валиден.</span>";
+      }
+    </script>
+  </body>
+</html>
